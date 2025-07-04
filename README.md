@@ -59,7 +59,7 @@ Your browser will open a live dashboard with real-time metrics and graphs.
 ---
 
 ## 📊 Preview
-
+![Weather Charts](weather_snapshot_bars.png)
 ---
 
 ## 🌍 Technology Stack
@@ -70,6 +70,10 @@ Your browser will open a live dashboard with real-time metrics and graphs.
 * matplotlib
 * Streamlit
 
+---
+##🌐 Live Dashboard
+
+👉 View the Streamlit App (https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/)
 ---
 
 ## 💡 Why this project?
