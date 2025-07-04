@@ -8,12 +8,12 @@ from streamlit_autorefresh import st_autorefresh
 # Configurações da página / Page settings
 st.set_page_config(layout="wide", page_title="Live Weather Dashboard")
 
-# Atualização automática a cada 15 segundos / Auto-refresh every 15 seconds
+# Atualização automática a cada 60 segundos / Auto-refresh every 60 seconds
 st_autorefresh(interval=15000, key="refresh")
 
 # Título do app / App title
 st.title("🌤️ Real-Time Weather Dashboard")
-st.caption("Este painel atualiza automaticamente a cada 15 segundos. / This dashboard refreshes automatically every 15 seconds.")
+st.caption("Este painel atualiza automaticamente a cada 60 segundos. / This dashboard refreshes automatically every 60 seconds.")
 
 # Carrega os dados limpos / Load cleaned weather data
 df = pd.read_csv("data/clean_weather.csv")
