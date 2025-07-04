@@ -1,4 +1,3 @@
-workflow_with_token = """
 name: Update Weather Data Every Minute
 
 on:
@@ -40,10 +39,3 @@ jobs:
           git add data/clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push
-"""
-
-workflow_token_path = "/mnt/data/update_weather.yml"
-with open(workflow_token_path, "w", encoding="utf-8") as f:
-    f.write(workflow_with_token)
-
-workflow_token_path
