@@ -1,0 +1,39 @@
+
+name: Update Weather Data Every Minute
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"  # Every 1 minute
+  workflow_dispatch:
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run weather_collector.py
+        run: python weather_collector.py
+
+      - name: Run transform_weather.py
+        run: python transform_weather.py
+
+      - name: Push to repo
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
+          git add data/clean_weather.csv
+          git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
+          git push

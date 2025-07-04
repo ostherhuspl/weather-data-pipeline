@@ -1,0 +1,7 @@
+
+# dashboard.py
+# Dashboard Streamlit que lê dados do CSV atualizado a cada minuto
+# Streamlit dashboard that reads auto-updating CSV every minute
+
+# Certifique-se que a pipeline GitHub Actions está populando o clean_weather.csv corretamente.
+# Make sure the GitHub Actions pipeline is appending to clean_weather.csv correctly.
