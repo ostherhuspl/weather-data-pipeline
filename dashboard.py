@@ -13,7 +13,10 @@ st_autorefresh(interval=15000, key="refresh")
 
 # Título do app / App title
 st.title("🌤️ Real-Time Weather Dashboard")
-st.caption("Este painel atualiza automaticamente a cada 60 segundos. / This dashboard refreshes automatically every 60 seconds.")
+st.caption(
+    "Este painel atualiza automaticamente com base nos dados mais recentes coletados (pode haver um atraso de alguns minutos dependendo da fila do GitHub Actions). / "
+    "This dashboard auto-refreshes based on the latest collected data (there may be a delay of a few minutes depending on GitHub Actions scheduling)."
+)
 
 # Carrega os dados limpos / Load cleaned weather data
 df = pd.read_csv("data/clean_weather.csv")
