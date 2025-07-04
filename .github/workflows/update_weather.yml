@@ -18,6 +18,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Pull latest code before running scripts
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
+          git pull --rebase
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
@@ -28,14 +37,13 @@ jobs:
       - name: Run transform_weather.py
         run: python transform_weather.py
 
-      - name: Pull, then push to repo
+      - name: Push to repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git pull --rebase
           git add data/clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push
