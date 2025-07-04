@@ -71,9 +71,11 @@ Your browser will open a live dashboard with real-time metrics and graphs.
 * Streamlit
 
 ---
-##🌐 Live Dashboard
 
-👉 View the Streamlit App (https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/)
+## 🌐 Live App
+
+👉 [Click here to view the live Streamlit dashboard](https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/)
+
 ---
 
 ## 💡 Why this project?
