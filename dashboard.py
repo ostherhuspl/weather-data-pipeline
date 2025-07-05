@@ -30,31 +30,27 @@ st.markdown(f"**📅 Última atualização / Last Update:** {latest['datetime']}
 col1, col2, col3 = st.columns(3)
 
 # 🌡️ Temperatura / Temperature chart
-with col1:
-    st.subheader("🌡️ Temperatura (°C) / Temperature (°C)")
-    fig, ax = plt.subplots()
-    ax.plot(df["datetime"], df["temperature"], color="tab:red", marker="o")
-    ax.set_ylabel("°C")
-    ax.set_xlabel("Hora / Time")
-    ax.tick_params(axis="x", rotation=45)
-    st.pyplot(fig)
+# Temperatura: Linha suave + área
+fig, ax = plt.subplots()
+ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5, label="Temperatura")
+ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
+ax.set_title("🌡️ Temperatura (°C)", fontsize=16, fontweight='bold')
+ax.grid(alpha=0.3, linestyle="--")
+st.pyplot(fig)
 
 # 💧 Umidade / Humidity chart
-with col2:
-    st.subheader("💧 Umidade (%) / Humidity (%)")
-    fig, ax = plt.subplots()
-    ax.plot(df["datetime"], df["humidity"], color="tab:blue", marker="o")
-    ax.set_ylabel("%")
-    ax.set_xlabel("Hora / Time")
-    ax.tick_params(axis="x", rotation=45)
-    st.pyplot(fig)
+# Umidade: Barras com sombra
+fig, ax = plt.subplots()
+ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.8)
+ax.set_title("💧 Umidade (%)", fontsize=16, fontweight='bold')
+ax.grid(axis="y", alpha=0.2)
+st.pyplot(fig)
 
 # 🌬️ Velocidade do Vento / Wind Speed chart
-with col3:
-    st.subheader("🌬️ Vel.Vento (m/s) / Wind Speed (m/s)")
-    fig, ax = plt.subplots()
-    ax.plot(df["datetime"], df["wind_speed"], color="tab:green", marker="o")
-    ax.set_ylabel("m/s")
-    ax.set_xlabel("Hora / Time")
-    ax.tick_params(axis="x", rotation=45)
-    st.pyplot(fig)
+# Vento: Área transparente + linha
+fig, ax = plt.subplots()
+ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2, label="Vento")
+ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.25)
+ax.set_title("🌬️ Velocidade do Vento (m/s)", fontsize=16, fontweight='bold')
+ax.grid(alpha=0.25)
+st.pyplot(fig)
