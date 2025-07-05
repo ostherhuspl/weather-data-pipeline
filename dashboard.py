@@ -103,7 +103,7 @@ with row1[2]:
 
 # Gráfico 4: Velocidade do vento
 with row2[0]:
-        st.markdown('<span style="font-size:16px;font-weight:600">🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)</span>', unsafe_allow_html=True)
+    st.markdown('<span style="font-size:16px;font-weight:600">🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)</span>', unsafe_allow_html=True)
     fig, ax = plt.subplots(figsize=(9, 3.5))
     ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2)
     ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.28)
