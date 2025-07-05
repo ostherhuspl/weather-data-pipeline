@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 
 st.set_page_config(layout="wide")
 
-# Carrega os dados limpos
+# Carrega os dados limpos (primeiro!)
 try:
     df = pd.read_csv("data/clean_weather.csv")
 except Exception:
@@ -18,10 +18,12 @@ if "datetime" not in df.columns:
 df["datetime"] = pd.to_datetime(df["datetime"], errors='coerce')
 df = df.dropna(subset=["datetime"])
 
-# Proteção para DataFrame vazio
 if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
+
+# (restante do seu código segue igual)
+
 
 # GIFs de tempo
 weather_gifs = {
