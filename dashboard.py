@@ -31,26 +31,34 @@ col1, col2, col3 = st.columns(3)
 
 # 🌡️ Temperatura / Temperature chart
 # Temperatura: Linha suave + área
-fig, ax = plt.subplots()
-ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5, label="Temperatura")
-ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
-ax.set_title("🌡️ Temperatura (°C) | Temperature", fontsize=16, fontweight='bold')
-ax.grid(alpha=0.3, linestyle="--")
-st.pyplot(fig)
+with col1:
+    st.subheader("🌡️ Temperatura (°C)")
+    fig, ax = plt.subplots(figsize=(4, 3))  # tamanho pequeno
+    ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5, label="Temperatura")
+    ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
+    ax.set_title("Temperatura", fontsize=12, fontweight='bold')
+    ax.grid(alpha=0.3, linestyle="--")
+    plt.tight_layout()
+    st.pyplot(fig)
 
 # 💧 Umidade / Humidity chart
 # Umidade: Barras com sombra
-fig, ax = plt.subplots()
-ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.8)
-ax.set_title("💧 Umidade (%) | Humidity", fontsize=16, fontweight='bold')
-ax.grid(axis="y", alpha=0.2)
-st.pyplot(fig)
-
+with col2:
+    st.subheader("💧 Umidade (%)")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.8)
+    ax.set_title("Umidade", fontsize=12, fontweight='bold')
+    ax.grid(axis="y", alpha=0.2)
+    plt.tight_layout()
+    st.pyplot(fig)
 # 🌬️ Velocidade do Vento / Wind Speed chart
 # Vento: Área transparente + linha
-fig, ax = plt.subplots()
-ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2, label="Vento")
-ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.25)
-ax.set_title("🌬️ Velocidade do Vento (m/s) | Wind speed", fontsize=16, fontweight='bold')
-ax.grid(alpha=0.25)
-st.pyplot(fig)
+with col3:
+    st.subheader("🌬️ Velocidade do Vento (m/s)")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2, label="Vento")
+    ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.25)
+    ax.set_title("Vento", fontsize=12, fontweight='bold')
+    ax.grid(alpha=0.25)
+    plt.tight_layout()
+    st.pyplot(fig)
