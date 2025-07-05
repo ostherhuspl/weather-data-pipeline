@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from PIL import Image
@@ -10,6 +9,16 @@ from io import BytesIO
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 
+# Carrega os dados limpos
+df = pd.read_csv("data/clean_weather.csv")
+df["datetime"] = pd.to_datetime(df["datetime"])
+
+# Proteção para DataFrame vazio
+if df.empty:
+    st.warning("Nenhum dado disponível ainda. / No data available yet.")
+    st.stop()
+
+# GIFs de tempo
 weather_gifs = {
     "clear": "https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif",        # Sol
     "rain": "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",     # Chuva
@@ -35,9 +44,7 @@ def get_weather_gif(description):
         return weather_gifs["drizzle"]
     elif "storm" in desc or "tempestade" in desc or "thunder" in desc:
         return weather_gifs["storm"]
-    return weather_gifs["clear"]  # Padrão: sol
-
-# Três linhas de colunas para seis gráficos + painel GIF
+    return weather_gifs["clear"]
 
 # Painel do GIF com o estado do céu
 latest = df.iloc[-1]
@@ -109,7 +116,7 @@ with row2[0]:
     plt.tight_layout()
     st.pyplot(fig)
 
-# Gráfico 5: Histogramas de temperatura (visual moderno)
+# Gráfico 5: Histograma Temperatura
 with row2[1]:
     st.subheader("📊 Histograma Temperatura / Temp Histogram")
     fig, ax = plt.subplots(figsize=(4, 3))
@@ -120,7 +127,7 @@ with row2[1]:
     plt.tight_layout()
     st.pyplot(fig)
 
-# Gráfico 6: Linha - variação de umidade e temperatura juntos
+# Gráfico 6: Umidade x Temperatura
 with row2[2]:
     st.subheader("📈 Umidade x Temperatura / Humidity x Temperature")
     fig, ax = plt.subplots(figsize=(4, 3))
