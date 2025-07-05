@@ -18,7 +18,7 @@ if df.empty:
 weather_gifs = {
     "clear": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExajZrazN1cHh6Z3F2a3dnZG1nZmoyZXhwejZ1c2ZmdXh5Z252d3BucCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FQQNs0UIOIMsU/giphy.gif",
     "rain": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2E4Z3A2YnNneXkzZWlpamFmYXZlbmR0dHo2bWtwMjZjZXJqZXJ6bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/udU9ZCWcTGpLq/giphy.gif",
-    "cloud":"https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNm00MTdsbnkxbnMydTY2YWp3M3htZjlkczRkYWhyMWF5empneTc5bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lOkbL3MJnEtHi/giphy.gif",
+    "cloud": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNm00MTdsbnkxbnMydTY2YWp3M3htZjlkczRkYWhyMWF5empneTc5bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lOkbL3MJnEtHi/giphy.gif",
     "snow": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXJkbGhvbDdvanl4bzE5anBkcnR1azJyaHJ2eWQyN2pxZXIydnc4YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RfNLGpBdysTllfljNY/giphy.gif",
     "fog": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDU0ZWgxOGdobjJhb3BqM2FpZ3FpODV5emxuemhpazJ0ZXdlNHJncSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bfZy3DHuJUc12/giphy.gif",
     "drizzle": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmJ6a2JocHIzdnkyaWZ6ajBrNHRrd2RsdnRha2NpZmtuN2NpeXdyZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/o6ijBdTg64Vu2pyNFb/giphy.gif",
@@ -48,6 +48,33 @@ gif_url = get_weather_gif(str(latest["description"]))
 st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
 st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
 
+# Função para anotar máximos, mínimos e último ponto
+def annotate_extremes(ax, x, y, unidade=""):
+    # Máximo
+    idx_max = y.idxmax()
+    ax.annotate(f'Máx: {y[idx_max]:.1f}{unidade}',
+                (x[idx_max], y[idx_max]),
+                xytext=(0, 12), textcoords='offset points',
+                ha='center', va='bottom', color='red',
+                fontsize=9, fontweight='bold',
+                arrowprops=dict(facecolor='red', shrink=0.06, width=1, headwidth=8))
+    # Mínimo
+    idx_min = y.idxmin()
+    ax.annotate(f'Mín: {y[idx_min]:.1f}{unidade}',
+                (x[idx_min], y[idx_min]),
+                xytext=(0, -16), textcoords='offset points',
+                ha='center', va='top', color='blue',
+                fontsize=9, fontweight='bold',
+                arrowprops=dict(facecolor='blue', shrink=0.06, width=1, headwidth=8))
+    # Último
+    idx_last = y.index[-1]
+    ax.annotate(f'Atual: {y[idx_last]:.1f}{unidade}',
+                (x[idx_last], y[idx_last]),
+                xytext=(10, 0), textcoords='offset points',
+                ha='left', va='center', color='black',
+                fontsize=9, fontweight='bold',
+                bbox=dict(boxstyle="round,pad=0.13", fc="yellow", ec="gray", alpha=0.6))
+
 # PRIMEIRA LINHA: Temperatura, Sensação Térmica, Umidade
 row1 = st.columns(3)
 with row1[0]:
@@ -61,6 +88,7 @@ with row1[0]:
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.3, linestyle="--")
+    annotate_extremes(ax, df["datetime"], df["temperature"], unidade="°C")
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -75,6 +103,7 @@ with row1[1]:
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.25, linestyle="--")
+    annotate_extremes(ax, df["datetime"], df["feels_like"], unidade="°C")
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -88,10 +117,11 @@ with row1[2]:
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(axis="y", alpha=0.18)
+    annotate_extremes(ax, df["datetime"], df["humidity"], unidade="%")
     plt.tight_layout()
     st.pyplot(fig)
 
-# SEGUNDA LINHA: Velocidade do Vento, Histograma Temperatura, Umidade x Temperatura
+# SEGUNDA LINHA: Velocidade do Vento, Histograma Temperatura, Umidade x Temperatura (tons de vermelho para temperatura)
 row2 = st.columns(3)
 with row2[0]:
     st.markdown('<span style="font-size:15px;font-weight:600">🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)</span>', unsafe_allow_html=True)
@@ -104,6 +134,7 @@ with row2[0]:
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.18)
+    annotate_extremes(ax, df["datetime"], df["wind_speed"], unidade=" m/s")
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -120,8 +151,9 @@ with row2[1]:
 with row2[2]:
     st.markdown('<span style="font-size:15px;font-weight:600">📈 Umidade x Temperatura / Humidity x Temperature</span>', unsafe_allow_html=True)
     fig, ax = plt.subplots(figsize=(6, 3))
-    ax.plot(df["datetime"], df["temperature"], label="Temp (°C)", color="orange", marker="o", linewidth=2)
-    ax.plot(df["datetime"], df["humidity"], label="Umidade (%)", color="#0077cc", marker="s", linewidth=2, alpha=0.65)
+    # Umidade: linha azul clara, Temperatura: linha vermelha "dry bulb"
+    ax.plot(df["datetime"], df["humidity"], label="Umidade (%)", color="#297FFF", marker="o", linestyle='dotted', linewidth=2)
+    ax.plot(df["datetime"], df["temperature"], label="Temp Bulbo Seco (°C)", color="#ff4d4d", marker="s", linewidth=2.5)
     ax.set_title("Umidade x Temperatura", fontsize=10, fontweight='bold')
     ax.set_ylabel("Valor / Value")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -129,5 +161,7 @@ with row2[2]:
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.20)
     ax.legend()
+    # Adiciona extrema da temperatura
+    annotate_extremes(ax, df["datetime"], df["temperature"], unidade="°C")
     plt.tight_layout()
     st.pyplot(fig)
