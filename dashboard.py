@@ -63,7 +63,7 @@ with row1[0]:
     fig, ax = plt.subplots(figsize=(6, 3))
     ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5)
     ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
-    ax.set_title("Temperatura / Temperature", fontsize=10, fontweight='bold')
+    ax.set_title("Temperatura / Temperature", fontsize=12, fontweight='bold')
     ax.set_ylabel("°C")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
@@ -75,10 +75,10 @@ with row1[0]:
 # Gráfico 2: Sensação térmica
 with row1[1]:
     st.subheader("🥵 Sensação Térmica (°C) / Feels Like (°C)")
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(df["datetime"], df["feels_like"], color="#7e3ff2", marker="s", linewidth=2)
     ax.fill_between(df["datetime"], df["feels_like"], color="#d1b3ff", alpha=0.4)
-    ax.set_title("Sensação Térmica / Feels Like", fontsize=10, fontweight='bold')
+    ax.set_title("Sensação Térmica / Feels Like", fontsize=12, fontweight='bold')
     ax.set_ylabel("°C")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
@@ -90,24 +90,24 @@ with row1[1]:
 # Gráfico 3: Umidade
 with row1[2]:
     st.subheader("💧 Umidade (%) / Humidity (%)")
-    fig, ax = plt.subplots(figsize=(6, 3))
-    ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.85)
-    ax.set_title("Umidade / Humidity", fontsize=10, fontweight='bold')
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(df["datetime"], df["humidity"], color="#297FFF", marker="o", linewidth=2, linestyle='dotted')
+    ax.set_title("Umidade / Humidity", fontsize=12, fontweight='bold')
     ax.set_ylabel("%")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    ax.grid(axis="y", alpha=0.2)
+    ax.grid(axis="y", alpha=0.18)
     plt.tight_layout()
     st.pyplot(fig)
 
 # Gráfico 4: Velocidade do vento
 with row2[0]:
     st.subheader("🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)")
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2)
     ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.28)
-    ax.set_title("Vento / Wind", fontsize=10, fontweight='bold')
+    ax.set_title("Vento / Wind", fontsize=12, fontweight='bold')
     ax.set_ylabel("m/s")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
@@ -119,9 +119,9 @@ with row2[0]:
 # Gráfico 5: Histograma Temperatura
 with row2[1]:
     st.subheader("📊 Histograma Temperatura / Temp Histogram")
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(12, 6))
     ax.hist(df["temperature"], bins=12, color="tomato", edgecolor="darkred", alpha=0.7)
-    ax.set_title("Histograma Temperatura / Histogram Temperature", fontsize=10, fontweight='bold')
+    ax.set_title("Histograma Temperatura / Histogram Temperature", fontsize=12, fontweight='bold')
     ax.set_xlabel("°C")
     ax.set_ylabel("Frequência / Frequency")
     plt.tight_layout()
@@ -130,10 +130,10 @@ with row2[1]:
 # Gráfico 6: Umidade x Temperatura
 with row2[2]:
     st.subheader("📈 Umidade x Temperatura / Humidity x Temperature")
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(df["datetime"], df["temperature"], label="Temp (°C)", color="orange", marker="o", linewidth=2)
     ax.plot(df["datetime"], df["humidity"], label="Umidade (%)", color="#0077cc", marker="s", linewidth=2, alpha=0.65)
-    ax.set_title("Umidade x Temperatura", fontsize=10, fontweight='bold')
+    ax.set_title("Umidade x Temperatura", fontsize=12, fontweight='bold')
     ax.set_ylabel("Valor / Value")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
