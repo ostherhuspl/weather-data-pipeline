@@ -3,6 +3,8 @@ import matplotlib.dates as mdates
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(layout="wide")
+
 # Carrega os dados limpos
 df = pd.read_csv("data/clean_weather.csv")
 df["datetime"] = pd.to_datetime(df["datetime"])
