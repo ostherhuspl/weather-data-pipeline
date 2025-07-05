@@ -3,12 +3,20 @@ import pandas as pd
 import plotly.graph_objs as go
 
 st.set_page_config(layout="wide")
-df["datetime"] = pd.to_datetime(df["datetime"], errors='coerce')
-df = df.dropna(subset=["datetime"])
 
 # Carrega os dados limpos
-df = pd.read_csv("data/clean_weather.csv")
-df["datetime"] = pd.to_datetime(df["datetime"])
+try:
+    df = pd.read_csv("data/clean_weather.csv")
+except Exception:
+    st.error("Não foi possível carregar o arquivo CSV.")
+    st.stop()
+
+if "datetime" not in df.columns:
+    st.error("O arquivo CSV não contém a coluna 'datetime'. Verifique o pipeline.")
+    st.stop()
+
+df["datetime"] = pd.to_datetime(df["datetime"], errors='coerce')
+df = df.dropna(subset=["datetime"])
 
 # Proteção para DataFrame vazio
 if df.empty:
@@ -26,7 +34,7 @@ weather_gifs = {
     "storm": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHAxeDF0cHg3aHd6bjB3bHcwMDcwd2Q1ejMyNmo4cWM5NWR6dWM0ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LGY967AFmrueY/giphy.gif",
 }
 def get_weather_gif(description):
-    desc = description.lower()
+    desc = str(description).lower()
     if "clear" in desc or "céu limpo" in desc or "sun" in desc or "ensolarado" in desc:
         return weather_gifs["clear"]
     elif "rain" in desc or "chuva" in desc:
@@ -90,31 +98,30 @@ if show_temp:
         mode="lines+markers", name="Temperatura (°C)", marker=dict(color='red')
     ))
     # Máximo
-    idx_max = df_filtered["temperature"].idxmax()
-    fig.add_trace(go.Scatter(
-        x=[df_filtered["datetime"].loc[idx_max]], y=[df_filtered["temperature"].max()],
-        mode="markers+text",
-        marker=dict(color='red', size=14, symbol="star"),
-        text=[f"Máx: {df_filtered['temperature'].max():.1f}°C"], textposition="top center",
-        showlegend=False
-    ))
-    # Mínimo
-    idx_min = df_filtered["temperature"].idxmin()
-    fig.add_trace(go.Scatter(
-        x=[df_filtered["datetime"].loc[idx_min]], y=[df_filtered["temperature"].min()],
-        mode="markers+text",
-        marker=dict(color='blue', size=14, symbol="star"),
-        text=[f"Mín: {df_filtered['temperature'].min():.1f}°C"], textposition="bottom center",
-        showlegend=False
-    ))
-    # Último
-    fig.add_trace(go.Scatter(
-        x=[df_filtered["datetime"].iloc[-1]], y=[df_filtered["temperature"].iloc[-1]],
-        mode="markers+text",
-        marker=dict(color='orange', size=16, symbol="circle"),
-        text=[f"Atual: {df_filtered['temperature'].iloc[-1]:.1f}°C"], textposition="middle right",
-        showlegend=False
-    ))
+    if len(df_filtered) > 0:
+        idx_max = df_filtered["temperature"].idxmax()
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].loc[idx_max]], y=[df_filtered["temperature"].max()],
+            mode="markers+text",
+            marker=dict(color='red', size=14, symbol="star"),
+            text=[f"Máx: {df_filtered['temperature'].max():.1f}°C"], textposition="top center",
+            showlegend=False
+        ))
+        idx_min = df_filtered["temperature"].idxmin()
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].loc[idx_min]], y=[df_filtered["temperature"].min()],
+            mode="markers+text",
+            marker=dict(color='blue', size=14, symbol="star"),
+            text=[f"Mín: {df_filtered['temperature'].min():.1f}°C"], textposition="bottom center",
+            showlegend=False
+        ))
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].iloc[-1]], y=[df_filtered["temperature"].iloc[-1]],
+            mode="markers+text",
+            marker=dict(color='orange', size=16, symbol="circle"),
+            text=[f"Atual: {df_filtered['temperature'].iloc[-1]:.1f}°C"], textposition="middle right",
+            showlegend=False
+        ))
     fig.update_layout(
         title="🌡️ Temperatura (°C) / Temperature (°C)",
         xaxis_title="Data/Hora", yaxis_title="°C",
