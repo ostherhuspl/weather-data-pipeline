@@ -22,9 +22,6 @@ if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
 
-# (restante do seu código segue igual)
-
-
 # GIFs de tempo
 weather_gifs = {
     "clear": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExajZrazN1cHh6Z3F2a3dnZG1nZmoyZXhwejZ1c2ZmdXh5Z252d3BucCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FQQNs0UIOIMsU/giphy.gif",
@@ -62,8 +59,8 @@ st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['desc
 # === INTERATIVIDADE ===
 # Seletor de datas (crossfilter para todos os gráficos)
 if len(df) >= 2:
-    min_date = pd.to_datetime(df["datetime"].min())
-    max_date = pd.to_datetime(df["datetime"].max())
+    min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
+    max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
     date_range = st.slider(
         "Selecione o período / Select the period:",
         min_value=min_date, max_value=max_date,
@@ -72,10 +69,13 @@ if len(df) >= 2:
     )
 else:
     st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
-    date_range = (df["datetime"].min(), df["datetime"].max())
+    date_range = (None, None)
 
-mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
-df_filtered = df.loc[mask].copy()
+if date_range[0] is not None and date_range[1] is not None:
+    mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
+    df_filtered = df.loc[mask].copy()
+else:
+    df_filtered = df.copy()
 
 st.dataframe(df_filtered, use_container_width=True)
 
@@ -99,7 +99,6 @@ if show_temp:
         x=df_filtered["datetime"], y=df_filtered["temperature"],
         mode="lines+markers", name="Temperatura (°C)", marker=dict(color='red')
     ))
-    # Máximo
     if len(df_filtered) > 0:
         idx_max = df_filtered["temperature"].idxmax()
         fig.add_trace(go.Scatter(
