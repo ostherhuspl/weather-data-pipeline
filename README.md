@@ -38,8 +38,27 @@ weather-data-pipeline/
 ---
 
 🧪 How to Run It
-* Option 1: Try the Live Cloud Dashboard
+Option 1: Try the Live Cloud Dashboard
 * No setup required!
+
+Option 2: Run Locally (manual)
+* Step 1: Collect Data
+
+python weather_collector.py
+
+* This pulls the current weather from OpenWeatherMap and saves it in /data/raw_weather_<timestamp>.json.
+
+* Step 2: Transform the Data
+
+python transform_weather.py
+* Extracts fields like temperature, humidity, wind, and stores in clean_weather.csv.
+
+* Step 3: Run the Dashboard
+
+streamlit run dashboard.py
+* Your browser will open a live dashboard with real-time metrics and charts (wide mode enabled).
+
+---
 
 👉 Live Streamlit Dashboard ((https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/))
 
