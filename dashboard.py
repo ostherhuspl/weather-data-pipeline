@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.graph_objs as go
 
 st.set_page_config(layout="wide")
+df["datetime"] = pd.to_datetime(df["datetime"], errors='coerce')
+df = df.dropna(subset=["datetime"])
 
 # Carrega os dados limpos
 df = pd.read_csv("data/clean_weather.csv")
@@ -49,13 +51,19 @@ st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['desc
 
 # === INTERATIVIDADE ===
 # Seletor de datas (crossfilter para todos os gráficos)
-min_date, max_date = df["datetime"].min(), df["datetime"].max()
-date_range = st.slider(
-    "Selecione o período / Select the period:",
-    min_value=min_date, max_value=max_date,
-    value=(min_date, max_date),
-    format="DD/MM/YYYY HH:mm"
-)
+if len(df) >= 2:
+    min_date = pd.to_datetime(df["datetime"].min())
+    max_date = pd.to_datetime(df["datetime"].max())
+    date_range = st.slider(
+        "Selecione o período / Select the period:",
+        min_value=min_date, max_value=max_date,
+        value=(min_date, max_date),
+        format="DD/MM/YYYY HH:mm"
+    )
+else:
+    st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
+    date_range = (df["datetime"].min(), df["datetime"].max())
+
 mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
 df_filtered = df.loc[mask].copy()
 
