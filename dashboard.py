@@ -46,35 +46,86 @@ gif_url = get_weather_gif(str(latest["description"]))
 st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
 st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
 
-# Temperatura: Linha suave + área
-with col1:
-    st.subheader("🌡️ Temperatura (°C)")
-    fig, ax = plt.subplots(figsize=(4, 3))  # tamanho pequeno
-    ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5, label="Temperatura")
+# PRIMEIRA LINHA: Temperatura, Sensação Térmica, Umidade
+row1 = st.columns(3)
+with row1[0]:
+    st.markdown('<span style="font-size:15px;font-weight:600">🌡️ Temperatura (°C) / Temperature (°C)</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5)
     ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
-    ax.set_title("Temperatura", fontsize=12, fontweight='bold')
+    ax.set_title("Temperatura / Temperature", fontsize=10, fontweight='bold')
+    ax.set_ylabel("°C")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.3, linestyle="--")
     plt.tight_layout()
     st.pyplot(fig)
 
-# Umidade: Barras com sombra
-with col2:
-    st.subheader("💧 Umidade (%)")
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.8)
-    ax.set_title("Umidade", fontsize=12, fontweight='bold')
-    ax.grid(axis="y", alpha=0.2)
+with row1[1]:
+    st.markdown('<span style="font-size:15px;font-weight:600">🥵 Sensação Térmica (°C) / Feels Like (°C)</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(df["datetime"], df["feels_like"], color="#7e3ff2", marker="s", linewidth=2)
+    ax.fill_between(df["datetime"], df["feels_like"], color="#d1b3ff", alpha=0.4)
+    ax.set_title("Sensação Térmica / Feels Like", fontsize=10, fontweight='bold')
+    ax.set_ylabel("°C")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.25, linestyle="--")
     plt.tight_layout()
     st.pyplot(fig)
 
-# Vento: Área transparente + linha
-with col3:
-    st.subheader("🌬️ Velocidade do Vento (m/s)")
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2, label="Vento")
-    ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.25)
-    ax.set_title("Vento", fontsize=12, fontweight='bold')
-    ax.grid(alpha=0.25)
+with row1[2]:
+    st.markdown('<span style="font-size:15px;font-weight:600">💧 Umidade (%) / Humidity (%)</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(df["datetime"], df["humidity"], color="#297FFF", marker="o", linewidth=2, linestyle='dotted')
+    ax.set_title("Umidade / Humidity", fontsize=10, fontweight='bold')
+    ax.set_ylabel("%")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(axis="y", alpha=0.18)
     plt.tight_layout()
     st.pyplot(fig)
 
+# SEGUNDA LINHA: Velocidade do Vento, Histograma Temperatura, Umidade x Temperatura
+row2 = st.columns(3)
+with row2[0]:
+    st.markdown('<span style="font-size:15px;font-weight:600">🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2)
+    ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.28)
+    ax.set_title("Vento / Wind", fontsize=10, fontweight='bold')
+    ax.set_ylabel("m/s")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.18)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+with row2[1]:
+    st.markdown('<span style="font-size:15px;font-weight:600">📊 Histograma Temperatura / Temp Histogram</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.hist(df["temperature"], bins=12, color="tomato", edgecolor="darkred", alpha=0.7)
+    ax.set_title("Histograma Temperatura / Histogram Temperature", fontsize=10, fontweight='bold')
+    ax.set_xlabel("°C")
+    ax.set_ylabel("Frequência / Frequency")
+    plt.tight_layout()
+    st.pyplot(fig)
+
+with row2[2]:
+    st.markdown('<span style="font-size:15px;font-weight:600">📈 Umidade x Temperatura / Humidity x Temperature</span>', unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(df["datetime"], df["temperature"], label="Temp (°C)", color="orange", marker="o", linewidth=2)
+    ax.plot(df["datetime"], df["humidity"], label="Umidade (%)", color="#0077cc", marker="s", linewidth=2, alpha=0.65)
+    ax.set_title("Umidade x Temperatura", fontsize=10, fontweight='bold')
+    ax.set_ylabel("Valor / Value")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.20)
+    ax.legend()
+    plt.tight_layout()
+    st.pyplot(fig)
