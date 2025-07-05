@@ -1,60 +1,47 @@
 # 🌤️ Real-Time Weather Data Pipeline with Streamlit
 
-This project demonstrates a **complete mini data engineering pipeline**, from real-time data ingestion to a live dashboard. It uses open APIs to simulate sensor data, processes it using Python, and visualizes it interactively with Streamlit.
+This project demonstrates a **full mini data engineering pipeline**: real-time data ingestion, transformation, automation, and a responsive dashboard — all running in the cloud!  
+**Weather data is collected every minute via GitHub Actions**, processed and displayed live on a professional Streamlit dashboard.
 
 ---
 
 ## 🚀 Overview
 
-| Step            | Tool/Language            | Description                           |
-| --------------- | ------------------------ | ------------------------------------- |
-| Data Collection | Python + OpenWeather API | Pulls real-time weather data via HTTP |
-| Storage         | JSON / CSV               | Saves raw and clean data files        |
-| Transformation  | pandas                   | Normalizes and extracts fields        |
-| Visualization   | Streamlit                | Interactive dashboard and metrics     |
+| Step            | Tool/Language            | Description                             |
+| --------------- | ------------------------ | --------------------------------------- |
+| Data Collection | Python + OpenWeather API | Pulls real-time weather data via HTTP   |
+| Automation      | GitHub Actions           | Collects/transforms data every minute   |
+| Storage         | JSON / CSV               | Saves raw and clean data files          |
+| Transformation  | pandas                   | Normalizes and extracts fields          |
+| Visualization   | Streamlit + Matplotlib   | Interactive dashboard and metrics       |
 
 ---
 
 ## 📦 File Structure
 
 ```bash
-weather_pipeline/
-├── weather_collector.py         # Collects and stores weather JSON data
-├── transform_weather.py         # Transforms and cleans the data to CSV
-├── dashboard.py                 # Streamlit app for live dashboard
+weather-data-pipeline/
+├── weather_collector.py          # Collects and stores weather JSON data
+├── transform_weather.py          # Transforms and cleans the data to CSV
+├── dashboard.py                  # Streamlit app for live dashboard
+├── .streamlit/
+│   └── config.toml               # Forces wide mode for dashboard
 ├── data/
-│   ├── raw_weather_*.json       # Raw weather data from API
-│   └── clean_weather.csv        # Cleaned weather log for analysis
-└── weather_snapshot_bars.png    # Snapshot of chart output
+│   ├── raw_weather_*.json        # Raw weather data from API
+│   └── clean_weather.csv         # Cleaned weather log for analysis
+├── .github/workflows/
+│   └── update_weather.yml        # GitHub Actions workflow for automation
+└── weather_snapshot_bars.png     # Snapshot of chart output
+
 ```
 
 ---
 
-## 🧪 How to Run It
+🧪 How to Run It
+* Option 1: Try the Live Cloud Dashboard
+* No setup required!
 
-### Step 1: Collect Data
-
-```bash
-python weather_collector.py
-```
-
-This pulls the current weather from OpenWeatherMap and saves it in `/data/raw_weather_<timestamp>.json`
-
-### Step 2: Transform the Data
-
-```bash
-python transform_weather.py
-```
-
-Extracts fields like temperature, humidity, wind, and stores in `clean_weather.csv`
-
-### Step 3: Run the Dashboard
-
-```bash
-streamlit run dashboard.py
-```
-
-Your browser will open a live dashboard with real-time metrics and graphs.
+👉 Live Streamlit Dashboard ((https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/))
 
 ---
 
@@ -69,12 +56,16 @@ Your browser will open a live dashboard with real-time metrics and graphs.
 * pandas
 * matplotlib
 * Streamlit
+* GitHub Actions (for data collection automation)
 
 ---
 
-## 🌐 Live App
+⚙️ How the Automation Works
+* Data is collected every minute using GitHub Actions (no need for your computer to be on).
 
-👉 [Click here to view the live Streamlit dashboard](https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/)
+* Each new reading is appended to the CSV and the dashboard is always up to date.
+
+* .streamlit/config.toml ensures the dashboard uses the full page width (wide layout).
 
 ---
 
@@ -83,8 +74,12 @@ Your browser will open a live dashboard with real-time metrics and graphs.
 This simulates IoT-like sensor collection using public APIs — ideal for:
 
 * Practicing real-time ingestion and processing
-* Creating dashboards for reporting
-* Simulating embedded devices with zero cost
+
+* Creating dashboards for reporting and monitoring
+
+* Demonstrating automation (via GitHub Actions) for Data Engineering
+
+* Simulating embedded devices/data pipelines with zero cost
 
 ---
 
