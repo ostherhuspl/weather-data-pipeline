@@ -1,0 +1,11 @@
+[server]
+headless = true
+
+[theme]
+base="light"
+backgroundColor="#000000"
+textColor="#ffffff"
+
+[ui]
+# Força o conteúdo a ocupar a largura total da página
+wideMode = true
