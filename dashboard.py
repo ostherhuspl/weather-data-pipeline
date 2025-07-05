@@ -1,64 +1,137 @@
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from PIL import Image
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
+import requests
+from io import BytesIO
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 
-# Configurações da página / Page settings
-st.set_page_config(layout="wide", page_title="Live Weather Dashboard")
+weather_gifs = {
+    "clear": "https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif",        # Sol
+    "rain": "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",     # Chuva
+    "cloud": "https://media.giphy.com/media/26u4b45b8KlgAB7iM/giphy.gif",     # Nublado
+    "snow": "https://media.giphy.com/media/2SYv6u4lGNnRY/giphy.gif",          # Neve
+    "fog": "https://media.giphy.com/media/3o6Zt8zb1gqjF6zWFG/giphy.gif",      # Névoa
+    "drizzle": "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif",   # Garoa
+    "storm": "https://media.giphy.com/media/1kkxWqT5nvLXupUTwK/giphy.gif",    # Tempestade
+}
+def get_weather_gif(description):
+    desc = description.lower()
+    if "clear" in desc or "céu limpo" in desc or "sun" in desc or "ensolarado" in desc:
+        return weather_gifs["clear"]
+    elif "rain" in desc or "chuva" in desc:
+        return weather_gifs["rain"]
+    elif "cloud" in desc or "nuvem" in desc or "nublado" in desc:
+        return weather_gifs["cloud"]
+    elif "snow" in desc or "neve" in desc:
+        return weather_gifs["snow"]
+    elif "fog" in desc or "névoa" in desc or "mist" in desc:
+        return weather_gifs["fog"]
+    elif "drizzle" in desc or "garoa" in desc:
+        return weather_gifs["drizzle"]
+    elif "storm" in desc or "tempestade" in desc or "thunder" in desc:
+        return weather_gifs["storm"]
+    return weather_gifs["clear"]  # Padrão: sol
 
-# Atualização automática a cada 60 segundos / Auto-refresh every 60 seconds
-st_autorefresh(interval=15000, key="refresh")
+# Três linhas de colunas para seis gráficos + painel GIF
 
-# Título do app / App title
-st.title("🌤️ Real-Time Weather Dashboard")
-st.caption(
-    "Este painel atualiza automaticamente com base nos dados mais recentes coletados (pode haver um atraso de alguns minutos dependendo da fila do GitHub Actions). / "
-    "This dashboard auto-refreshes based on the latest collected data (there may be a delay of a few minutes depending on GitHub Actions scheduling)."
-)
-
-# Carrega os dados limpos / Load cleaned weather data
-df = pd.read_csv("data/clean_weather.csv")
-df["datetime"] = pd.to_datetime(df["datetime"])
-
-# Exibe a última atualização / Show last data update
+# Painel do GIF com o estado do céu
 latest = df.iloc[-1]
-st.markdown(f"**📅 Última atualização / Last Update:** {latest['datetime']} — Cidade / City: {latest['city']}")
+gif_url = get_weather_gif(str(latest["description"]))
 
-# Layout com 3 colunas para os gráficos / Three-column layout for charts
-col1, col2, col3 = st.columns(3)
+st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
+st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
 
-# 🌡️ Temperatura / Temperature chart
-# Temperatura: Linha suave + área
-with col1:
-    st.subheader("🌡️ Temperatura (°C)")
-    fig, ax = plt.subplots(figsize=(4, 3))  # tamanho pequeno
-    ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5, label="Temperatura")
+# Layout das três linhas de gráficos
+row1 = st.columns(3)
+row2 = st.columns(3)
+
+# Gráfico 1: Temperatura
+with row1[0]:
+    st.subheader("🌡️ Temperatura (°C) / Temperature (°C)")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.plot(df["datetime"], df["temperature"], color="orangered", marker="o", linewidth=2.5)
     ax.fill_between(df["datetime"], df["temperature"], color="orange", alpha=0.2)
-    ax.set_title("Temperatura", fontsize=12, fontweight='bold')
+    ax.set_title("Temperatura / Temperature", fontsize=12, fontweight='bold')
+    ax.set_ylabel("°C")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(alpha=0.3, linestyle="--")
     plt.tight_layout()
     st.pyplot(fig)
 
-# 💧 Umidade / Humidity chart
-# Umidade: Barras com sombra
-with col2:
-    st.subheader("💧 Umidade (%)")
+# Gráfico 2: Sensação térmica
+with row1[1]:
+    st.subheader("🥵 Sensação Térmica (°C) / Feels Like (°C)")
     fig, ax = plt.subplots(figsize=(4, 3))
-    ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.8)
-    ax.set_title("Umidade", fontsize=12, fontweight='bold')
+    ax.plot(df["datetime"], df["feels_like"], color="#7e3ff2", marker="s", linewidth=2)
+    ax.fill_between(df["datetime"], df["feels_like"], color="#d1b3ff", alpha=0.4)
+    ax.set_title("Sensação Térmica / Feels Like", fontsize=12, fontweight='bold')
+    ax.set_ylabel("°C")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.25, linestyle="--")
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# Gráfico 3: Umidade
+with row1[2]:
+    st.subheader("💧 Umidade (%) / Humidity (%)")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.bar(df["datetime"], df["humidity"], color="#0099FF", edgecolor="#003366", alpha=0.85)
+    ax.set_title("Umidade / Humidity", fontsize=12, fontweight='bold')
+    ax.set_ylabel("%")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     ax.grid(axis="y", alpha=0.2)
     plt.tight_layout()
     st.pyplot(fig)
-# 🌬️ Velocidade do Vento / Wind Speed chart
-# Vento: Área transparente + linha
-with col3:
-    st.subheader("🌬️ Velocidade do Vento (m/s)")
+
+# Gráfico 4: Velocidade do vento
+with row2[0]:
+    st.subheader("🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)")
     fig, ax = plt.subplots(figsize=(4, 3))
-    ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2, label="Vento")
-    ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.25)
-    ax.set_title("Vento", fontsize=12, fontweight='bold')
-    ax.grid(alpha=0.25)
+    ax.plot(df["datetime"], df["wind_speed"], color="#27ae60", linewidth=2)
+    ax.fill_between(df["datetime"], df["wind_speed"], color="#2ecc40", alpha=0.28)
+    ax.set_title("Vento / Wind", fontsize=12, fontweight='bold')
+    ax.set_ylabel("m/s")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.18)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# Gráfico 5: Histogramas de temperatura (visual moderno)
+with row2[1]:
+    st.subheader("📊 Histograma Temperatura / Temp Histogram")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.hist(df["temperature"], bins=12, color="tomato", edgecolor="darkred", alpha=0.7)
+    ax.set_title("Histograma Temperatura / Histogram Temperature", fontsize=12, fontweight='bold')
+    ax.set_xlabel("°C")
+    ax.set_ylabel("Frequência / Frequency")
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# Gráfico 6: Linha - variação de umidade e temperatura juntos
+with row2[2]:
+    st.subheader("📈 Umidade x Temperatura / Humidity x Temperature")
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.plot(df["datetime"], df["temperature"], label="Temp (°C)", color="orange", marker="o", linewidth=2)
+    ax.plot(df["datetime"], df["humidity"], label="Umidade (%)", color="#0077cc", marker="s", linewidth=2, alpha=0.65)
+    ax.set_title("Umidade x Temperatura", fontsize=12, fontweight='bold')
+    ax.set_ylabel("Valor / Value")
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M'))
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    ax.grid(alpha=0.20)
+    ax.legend()
     plt.tight_layout()
     st.pyplot(fig)
