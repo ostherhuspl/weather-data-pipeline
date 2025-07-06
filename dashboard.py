@@ -89,7 +89,7 @@ with col2:
 # ==== CHECKBOXES E GRÁFICOS ====
 col1, col2, col3 = st.columns(3)
 with col1:
-    show_temp = st.checkbox("🌡️ Temperatura", value=True)
+    show_temp = st.checkbox("🌡️ Temperatura | Temperature", value=True)
     show_feels = st.checkbox("🥵 Sensação Térmica", value=True)
 with col2:
     show_humid = st.checkbox("💧 Umidade", value=True)
