@@ -90,13 +90,13 @@ with col2:
 col1, col2, col3 = st.columns(3)
 with col1:
     show_temp = st.checkbox("🌡️ Temperatura | Temperature", value=True)
-    show_feels = st.checkbox("🥵 Sensação Térmica", value=True)
+    show_feels = st.checkbox("🥵 Sensação Térmica | Thermal Sensation", value=True)
 with col2:
-    show_humid = st.checkbox("💧 Umidade", value=True)
-    show_wind = st.checkbox("🌬️ Vento", value=True)
+    show_humid = st.checkbox("💧 Umidade | Humidity", value=True)
+    show_wind = st.checkbox("🌬️ Vento | Wind", value=True)
 with col3:
-    show_hist = st.checkbox("📊 Histograma Temp.", value=True)
-    show_temp_humid = st.checkbox("📈 Temp x Umidade", value=True)
+    show_hist = st.checkbox("📊 Histograma Temp. | Time histogram", value=True)
+    show_temp_humid = st.checkbox("📈 Temp x Umidade | Temp x Hum", value=True)
 
 if show_temp:
     fig = go.Figure()
