@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 
 st.set_page_config(layout="wide")
 
-# Carrega os dados limpos (primeiro!)
+# Carrega os dados limpos
 try:
     df = pd.read_csv("data/clean_weather.csv")
 except Exception:
@@ -53,19 +53,21 @@ def get_weather_gif(description):
 latest = df.iloc[-1]
 gif_url = get_weather_gif(str(latest["description"]))
 
-# ==== GIF + SELETOR DE DATAS LADO A LADO (E TABELA) ====
-col_gif, col_slider = st.columns([1, 2])
-with col_gif:
+# ==== LAYOUT: GIF (col1) / SLIDER + TABELA (col2) ====
+col1, col2 = st.columns([1, 2])
+
+with col1:
     st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
     st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
 
-with col_slider:
+with col2:
     if len(df) >= 2:
         min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
         max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
         date_range = st.slider(
             "Selecione o período / Select the period:",
-            min_value=min_date, max_value=max_date,
+            min_value=min_date,
+            max_value=max_date,
             value=(min_date, max_date),
             format="DD/MM/YYYY HH:mm"
         )
@@ -73,13 +75,16 @@ with col_slider:
         st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
         date_range = (None, None)
 
-    # Filtro e TABELA DENTRO DO COL_SLIDER
     if date_range[0] is not None and date_range[1] is not None:
         mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
         df_filtered = df.loc[mask].copy()
     else:
         df_filtered = df.copy()
+
+    # AQUI: TABELA LOGO ABAIXO DO SLIDER
     st.dataframe(df_filtered, use_container_width=True)
+
+# ---- daqui pra baixo seguem os gráficos e checkboxes  ----
 
 # ==== CHECKBOXES E GRÁFICOS ====
 col1, col2, col3 = st.columns(3)
