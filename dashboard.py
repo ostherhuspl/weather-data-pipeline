@@ -130,7 +130,7 @@ if show_temp:
         ))
     fig.update_layout(
         title="🌡️ Temperatura (°C) / Temperature (°C)",
-        xaxis_title="Data/Hora", yaxis_title="°C",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
         template="plotly_white", hovermode='x unified', margin=dict(t=40, b=40)
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -143,7 +143,7 @@ if show_feels:
     ))
     fig.update_layout(
         title="🥵 Sensação Térmica (°C) / Feels Like (°C)",
-        xaxis_title="Data/Hora", yaxis_title="°C",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -156,7 +156,7 @@ if show_humid:
     ))
     fig.update_layout(
         title="💧 Umidade (%) / Humidity (%)",
-        xaxis_title="Data/Hora", yaxis_title="%",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="%",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -169,7 +169,7 @@ if show_wind:
     ))
     fig.update_layout(
         title="🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)",
-        xaxis_title="Data/Hora", yaxis_title="m/s",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="m/s",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -199,7 +199,7 @@ if show_temp_humid:
     ))
     fig.update_layout(
         title="📈 Umidade x Temperatura / Humidity x Temperature",
-        xaxis_title="Data/Hora", yaxis_title="Valor / Value",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="Valor / Value",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
