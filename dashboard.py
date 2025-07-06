@@ -53,7 +53,7 @@ def get_weather_gif(description):
 latest = df.iloc[-1]
 gif_url = get_weather_gif(str(latest["description"]))
 
-# ==== GIF + SELETOR DE DATAS LADO A LADO ====
+# ==== GIF + SELETOR DE DATAS LADO A LADO (E TABELA) ====
 col_gif, col_slider = st.columns([1, 2])
 with col_gif:
     st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
@@ -73,15 +73,15 @@ with col_slider:
         st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
         date_range = (None, None)
 
-if date_range[0] is not None and date_range[1] is not None:
-    mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
-    df_filtered = df.loc[mask].copy()
-else:
-    df_filtered = df.copy()
+    # Filtro e TABELA DENTRO DO COL_SLIDER
+    if date_range[0] is not None and date_range[1] is not None:
+        mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
+        df_filtered = df.loc[mask].copy()
+    else:
+        df_filtered = df.copy()
+    st.dataframe(df_filtered, use_container_width=True)
 
-st.dataframe(df_filtered, use_container_width=True)
-
-# ==== (RESTANTE DO SEU CÓDIGO: checkboxes, gráficos plotly) ====
+# ==== CHECKBOXES E GRÁFICOS ====
 col1, col2, col3 = st.columns(3)
 with col1:
     show_temp = st.checkbox("🌡️ Temperatura", value=True)
