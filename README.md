@@ -13,7 +13,7 @@ This project demonstrates a **full mini data engineering pipeline**: real-time d
 | Automation      | GitHub Actions           | Collects/transforms data every minute   |
 | Storage         | JSON / CSV               | Saves raw and clean data files          |
 | Transformation  | pandas                   | Normalizes and extracts fields          |
-| Visualization   | Streamlit + Matplotlib   | Interactive dashboard and metrics       |
+| Visualization   | Streamlit + Plotly       | Interactive dashboard and metrics       |
 
 ---
 
@@ -23,7 +23,7 @@ This project demonstrates a **full mini data engineering pipeline**: real-time d
 weather-data-pipeline/
 ├── weather_collector.py          # Collects and stores weather JSON data
 ├── transform_weather.py          # Transforms and cleans the data to CSV
-├── dashboard.py                  # Streamlit app for live dashboard
+├── dashboard.py                  # Streamlit app for live dashboard (with Plotly)
 ├── .streamlit/
 │   └── config.toml               # Forces wide mode for dashboard
 ├── data/
@@ -32,59 +32,61 @@ weather-data-pipeline/
 ├── .github/workflows/
 │   └── update_weather.yml        # GitHub Actions workflow for automation
 └── weather_snapshot_bars.png     # Snapshot of chart output
-
 ```
 
 ---
 
-🧪 How to Run It
-Option 1: Try the Live Cloud Dashboard
-* No setup required!
+## 🧪 How to Run It
 
-Option 2: Run Locally (manual)
-* Step 1: Collect Data
+### Option 1: Try the **Live Cloud Dashboard**
+- No setup required — just click:
+- 👉 [Live Streamlit Dashboard](https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/)
 
-python weather_collector.py
+### Option 2: Run Locally (manual)
 
-* This pulls the current weather from OpenWeatherMap and saves it in /data/raw_weather_<timestamp>.json.
+1. **Step 1: Collect Data**
+    ```bash
+    python weather_collector.py
+    ```
+    - Pulls the current weather from OpenWeatherMap and saves it as `/data/raw_weather_<timestamp>.json`.
 
-* Step 2: Transform the Data
+2. **Step 2: Transform the Data**
+    ```bash
+    python transform_weather.py
+    ```
+    - Extracts fields like temperature, humidity, wind, and stores them in `clean_weather.csv`.
 
-python transform_weather.py
-* Extracts fields like temperature, humidity, wind, and stores in clean_weather.csv.
-
-* Step 3: Run the Dashboard
-
-streamlit run dashboard.py
-* Your browser will open a live dashboard with real-time metrics and charts (wide mode enabled).
-
----
-
-👉 Live Streamlit Dashboard ((https://weather-data-pipeline-jhggjdheke6dnvfs8huxac.streamlit.app/))
+3. **Step 3: Run the Dashboard**
+    ```bash
+    streamlit run dashboard.py
+    ```
+    - Your browser will open a live dashboard with real-time metrics and charts (wide mode enabled).
 
 ---
 
 ## 📊 Preview
+
 ![Weather Charts](weather_snapshot_bars.png)
+
 ---
 
 ## 🌍 Technology Stack
 
-* Python 3.11+
-* requests
-* pandas
-* matplotlib
-* Streamlit
-* GitHub Actions (for data collection automation)
+- Python 3.11+
+- requests
+- pandas
+- plotly
+- Streamlit
+- GitHub Actions (for data collection automation)
 
 ---
 
-⚙️ How the Automation Works
-* Data is collected every minute using GitHub Actions (no need for your computer to be on).
+## ⚙️ How the Automation Works
 
-* Each new reading is appended to the CSV and the dashboard is always up to date.
-
-* .streamlit/config.toml ensures the dashboard uses the full page width (wide layout).
+- **Data is collected every minute using GitHub Actions** (your computer doesn’t need to be on).
+- Each new reading is appended to the CSV, keeping the dashboard always up to date.
+- `.streamlit/config.toml` ensures the dashboard uses the full page width (wide layout).
+- All source code is versioned and workflows are fully transparent.
 
 ---
 
@@ -92,19 +94,16 @@ streamlit run dashboard.py
 
 This simulates IoT-like sensor collection using public APIs — ideal for:
 
-* Practicing real-time ingestion and processing
-
-* Creating dashboards for reporting and monitoring
-
-* Demonstrating automation (via GitHub Actions) for Data Engineering
-
-* Simulating embedded devices/data pipelines with zero cost
+- Practicing real-time data ingestion and processing
+- Creating dashboards for reporting and monitoring
+- Demonstrating automation (via GitHub Actions) for Data Engineering
+- Simulating embedded devices/data pipelines with zero cost
 
 ---
 
 ## 📌 Author
 
-**Daniel Hernandes Gomes**
+**Daniel Hernandes Gomes**  
 🔗 [LinkedIn](https://www.linkedin.com/in/daniel-hernandes-gomes-9b87b77a/)
 
 Feel free to fork or reuse for your own pipelines!
