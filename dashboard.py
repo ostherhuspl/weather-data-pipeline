@@ -22,35 +22,6 @@ if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
 
-# Slider de datas 100% seguro
-if len(df) >= 2:
-    # Pega apenas datetimes válidos e garante tipos
-    min_date = df["datetime"].min()
-    max_date = df["datetime"].max()
-    if pd.isnull(min_date) or pd.isnull(max_date):
-        st.warning("Não foi possível encontrar datas válidas para o filtro.")
-        date_range = (None, None)
-    else:
-        # Força tipo datetime.datetime puro (não pd.Timestamp)
-        min_date = pd.Timestamp(min_date).to_pydatetime()
-        max_date = pd.Timestamp(max_date).to_pydatetime()
-        date_range = st.slider(
-            "Selecione o período / Select the period:",
-            min_value=min_date,
-            max_value=max_date,
-            value=(min_date, max_date),
-            format="DD/MM/YYYY HH:mm"
-        )
-else:
-    st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
-    date_range = (None, None)
-
-if date_range[0] is not None and date_range[1] is not None:
-    mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
-    df_filtered = df.loc[mask].copy()
-else:
-    df_filtered = df.copy()
-
 # GIFs de tempo
 weather_gifs = {
     "clear": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExajZrazN1cHh6Z3F2a3dnZG1nZmoyZXhwejZ1c2ZmdXh5Z252d3BucCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FQQNs0UIOIMsU/giphy.gif",
@@ -79,26 +50,28 @@ def get_weather_gif(description):
         return weather_gifs["storm"]
     return weather_gifs["clear"]
 
-# Painel do GIF com o estado do céu
 latest = df.iloc[-1]
 gif_url = get_weather_gif(str(latest["description"]))
-st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
-st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
 
-# === INTERATIVIDADE ===
-# Seletor de datas (crossfilter para todos os gráficos)
-if len(df) >= 2:
-    min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
-    max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
-    date_range = st.slider(
-        "Selecione o período / Select the period:",
-        min_value=min_date, max_value=max_date,
-        value=(min_date, max_date),
-        format="DD/MM/YYYY HH:mm"
-    )
-else:
-    st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
-    date_range = (None, None)
+# ==== GIF + SELETOR DE DATAS LADO A LADO ====
+col_gif, col_slider = st.columns([1, 2])
+with col_gif:
+    st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
+    st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
+
+with col_slider:
+    if len(df) >= 2:
+        min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
+        max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
+        date_range = st.slider(
+            "Selecione o período / Select the period:",
+            min_value=min_date, max_value=max_date,
+            value=(min_date, max_date),
+            format="DD/MM/YYYY HH:mm"
+        )
+    else:
+        st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
+        date_range = (None, None)
 
 if date_range[0] is not None and date_range[1] is not None:
     mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
@@ -108,7 +81,7 @@ else:
 
 st.dataframe(df_filtered, use_container_width=True)
 
-# Checkboxes para escolher quais gráficos mostrar
+# ==== (RESTANTE DO SEU CÓDIGO: checkboxes, gráficos plotly) ====
 col1, col2, col3 = st.columns(3)
 with col1:
     show_temp = st.checkbox("🌡️ Temperatura", value=True)
@@ -119,8 +92,6 @@ with col2:
 with col3:
     show_hist = st.checkbox("📊 Histograma Temp.", value=True)
     show_temp_humid = st.checkbox("📈 Temp x Umidade", value=True)
-
-# === GRÁFICOS PLOTLY ===
 
 if show_temp:
     fig = go.Figure()
