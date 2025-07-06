@@ -22,6 +22,35 @@ if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
 
+# Slider de datas 100% seguro
+if len(df) >= 2:
+    # Pega apenas datetimes válidos e garante tipos
+    min_date = df["datetime"].min()
+    max_date = df["datetime"].max()
+    if pd.isnull(min_date) or pd.isnull(max_date):
+        st.warning("Não foi possível encontrar datas válidas para o filtro.")
+        date_range = (None, None)
+    else:
+        # Força tipo datetime.datetime puro (não pd.Timestamp)
+        min_date = pd.Timestamp(min_date).to_pydatetime()
+        max_date = pd.Timestamp(max_date).to_pydatetime()
+        date_range = st.slider(
+            "Selecione o período / Select the period:",
+            min_value=min_date,
+            max_value=max_date,
+            value=(min_date, max_date),
+            format="DD/MM/YYYY HH:mm"
+        )
+else:
+    st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
+    date_range = (None, None)
+
+if date_range[0] is not None and date_range[1] is not None:
+    mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
+    df_filtered = df.loc[mask].copy()
+else:
+    df_filtered = df.copy()
+
 # GIFs de tempo
 weather_gifs = {
     "clear": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExajZrazN1cHh6Z3F2a3dnZG1nZmoyZXhwejZ1c2ZmdXh5Z252d3BucCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FQQNs0UIOIMsU/giphy.gif",
