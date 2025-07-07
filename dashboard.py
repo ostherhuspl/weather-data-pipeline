@@ -83,7 +83,7 @@ with col2:
 
     # AQUI: TABELA LOGO ABAIXO DO SLIDER
     st.dataframe(
-        df_filtered.sort_values("datetime", ascending=False).head(5),
+        df_filtered.sort_values("datetime", ascending=False).head(6),
         use_container_width=True
     )
 
