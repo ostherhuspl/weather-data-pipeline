@@ -82,7 +82,10 @@ with col2:
         df_filtered = df.copy()
 
     # AQUI: TABELA LOGO ABAIXO DO SLIDER
-    st.dataframe(df_filtered, use_container_width=True)
+    st.dataframe(
+        df_filtered.sort_values("datetime", ascending=False).head(5),
+        use_container_width=True
+    )
 
 # ---- daqui pra baixo seguem os gráficos e checkboxes  ----
 
