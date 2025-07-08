@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 # Substitua pela sua própria chave
-API_KEY = "d2f04065da883eb6f7b6cc3cf75c9761"
+API_KEY = ${{ secrets.OPENWEATHER_API_KEY }}
 CITY = "Warsaw"  # Você pode mudar para São Paulo, Lisbon, etc.
 
 # URL da API
