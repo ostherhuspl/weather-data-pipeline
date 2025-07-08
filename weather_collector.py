@@ -3,9 +3,12 @@ import json
 import os
 from datetime import datetime
 
-# Substitua pela sua própria chave | Here you put your API key
-API_KEY = ${{ secrets.OPENWEATHER_API_KEY }}
-CITY = "Warsaw"  # Você pode mudar para São Paulo, Lisbon, etc. #You can set the cit you want. 
+# Pega a chave da API do ambiente (GitHub Actions vai passar isso) / Gets API key from environment
+API_KEY = os.environ.get("OPENWEATHER_API_KEY")
+if not API_KEY:
+    raise ValueError("API key is missing! Set the OPENWEATHER_API_KEY environment variable.")
+
+CITY = "Warsaw"  # Você pode mudar para São Paulo, Lisbon, etc.
 
 # URL da API | API URL
 url = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
