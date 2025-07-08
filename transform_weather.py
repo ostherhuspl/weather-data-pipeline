@@ -13,7 +13,7 @@ json_files = sorted([f for f in os.listdir(data_dir) if f.startswith("raw_weathe
 
 if not json_files:
     print("❌ Nenhum arquivo encontrado. / No files found.")
-    exit()
+    exit(1)
 
 latest_file = os.path.join(data_dir, json_files[-1])
 
@@ -23,6 +23,12 @@ now_warsaw = datetime.now(warsaw_tz).strftime("%Y-%m-%d %H:%M:%S")
 
 with open(latest_file, "r", encoding="utf-8") as f:
     raw = json.load(f)
+
+# Verifica se resposta da API tem campos esperados
+if "name" not in raw or "main" not in raw or "weather" not in raw or "wind" not in raw:
+    print("❌ Erro: JSON recebido não tem os campos esperados. Veja abaixo:")
+    print(json.dumps(raw, indent=2, ensure_ascii=False))
+    exit(1)
 
 entry = {
     "city": raw["name"],
