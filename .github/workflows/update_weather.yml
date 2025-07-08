@@ -1,8 +1,4 @@
 name: Update Weather Data Every Minute
-env:
-    OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
-  run: python weather_collector.py
-
 
 on:
   schedule:
@@ -37,6 +33,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run weather_collector.py
+        env:
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
         run: python weather_collector.py
 
       - name: Run transform_weather.py
