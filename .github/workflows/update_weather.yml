@@ -50,7 +50,8 @@ jobs:
           git add data/clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push
-              - name: Push clean_weather.csv to DATA repo
+
+      - name: Push clean_weather.csv to DATA repo
         env:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
@@ -65,5 +66,3 @@ jobs:
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
-  
-          
