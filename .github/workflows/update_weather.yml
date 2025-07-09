@@ -53,7 +53,9 @@ jobs:
           rm -f clean_weather.csv
           git checkout main || git checkout -b main
           git pull origin main --rebase || true
-          cp ../../data/clean_weather.csv .
+          # Não precisa copiar de novo: o arquivo já está no diretório!
+          # ls -l   # (opcional para debug)
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
+
