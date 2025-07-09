@@ -50,3 +50,20 @@ jobs:
           git add data/clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push
+              - name: Push clean_weather.csv to DATA repo
+        env:
+          DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
+        run: |
+          git config --global user.name "actions-user"
+          git config --global user.email "actions@github.com"
+          cd data
+          git init
+          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git
+          git fetch origin || true
+          git checkout main || git checkout -b main
+          git pull origin main || true
+          git add clean_weather.csv
+          git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
+          git push origin main
+  
+          
