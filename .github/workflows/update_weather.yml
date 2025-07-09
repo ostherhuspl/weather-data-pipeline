@@ -48,13 +48,12 @@ jobs:
           git init
           git config user.name "actions-user"
           git config user.email "actions@github.com"
-          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git
+          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git || true
           git fetch origin main || true
-          rm -f clean_weather.csv   # <-- remove o arquivo local antes de checkout/pull!
+          rm -f clean_weather.csv
           git checkout main || git checkout -b main
           git pull origin main --rebase || true
-          cp ../data/clean_weather.csv .    # Copia a versão nova para dentro da pasta
+          cp ../../data/clean_weather.csv .
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
-
