@@ -5,11 +5,8 @@ import plotly.graph_objs as go
 st.set_page_config(layout="wide")
 
 # Carrega os dados limpos
-try:
-    df = pd.read_csv("https://raw.githubusercontent.com/ostherhuspl/weather-data-pipeline-data/main/clean_weather.csv")
-except Exception:
-    st.error("Não foi possível carregar o arquivo CSV.")
-    st.stop()
+csv_url = "https://raw.githubusercontent.com/ostherhuspl/weather-data-pipeline-data/main/clean_weather.csv"
+df = pd.read_csv(csv_url)
 
 if "datetime" not in df.columns:
     st.error("O arquivo CSV não contém a coluna 'datetime'. Verifique o pipeline.")
