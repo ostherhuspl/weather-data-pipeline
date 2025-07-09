@@ -45,19 +45,15 @@ jobs:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
           cd data
-          # Inicializa o repositório caso não exista
           git init
-          git config --global user.name "actions-user"
-          git config --global user.email "actions@github.com"
-          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git || true
-          # Salva o arquivo local para não perder
-          cp clean_weather.csv clean_weather.csv.tmp
-          # Tenta trazer o histórico do remoto
-          git fetch origin || true
+          git config user.name "actions-user"
+          git config user.email "actions@github.com"
+          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git
+          git fetch origin main || true
+          rm -f clean_weather.csv   # <-- remove o arquivo local antes de checkout/pull!
           git checkout main || git checkout -b main
-          git pull origin main --allow-unrelated-histories || true
-          # Restaura o arquivo novo
-          mv clean_weather.csv.tmp clean_weather.csv
+          git pull origin main --rebase || true
+          cp ../data/clean_weather.csv .    # Copia a versão nova para dentro da pasta
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
