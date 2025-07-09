@@ -6,7 +6,7 @@ st.set_page_config(layout="wide")
 
 # Carrega os dados limpos
 try:
-    df = pd.read_csv("data/clean_weather.csv")
+    df = pd.read_csv("https://raw.githubusercontent.com/ostherhuspl/weather-data-pipeline-data/main/clean_weather.csv")
 except Exception:
     st.error("Não foi possível carregar o arquivo CSV.")
     st.stop()
