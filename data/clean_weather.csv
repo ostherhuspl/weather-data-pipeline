@@ -1,4 +1,0 @@
-city,datetime,temperature,feels_like,humidity,wind_speed,description
-Warsaw,2025-07-09 16:30:22,15.12,15.17,95,6.17,light rain
-Warsaw,2025-07-09 16:50:49,15.26,15.32,95,4.63,broken clouds
-Warsaw,2025-07-09 17:17:34,15.48,15.56,95,5.66,broken clouds
