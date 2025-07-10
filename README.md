@@ -3,6 +3,12 @@
 This project demonstrates a **full mini data engineering pipeline**: real-time data ingestion, transformation, automation, and a responsive dashboard — all running in the cloud!  
 **Weather data is collected every minute via GitHub Actions**, processed and displayed live on a professional Streamlit dashboard.
 
+> ⚠️ **Note:**  
+> From July 2025, all automated data collection (`actions-user` commits) were moved to a dedicated data repository to keep the main project history clean for reviewers.  
+> **All live data is now pushed to:**  
+> [weather-data-pipeline-data](https://github.com/ostherhuspl/weather-data-pipeline-data)  
+> This ensures only *human commits* appear in this repo’s history.
+
 ---
 
 ## 🚀 Overview
@@ -11,7 +17,7 @@ This project demonstrates a **full mini data engineering pipeline**: real-time d
 | --------------- | ------------------------ | --------------------------------------- |
 | Data Collection | Python + OpenWeather API | Pulls real-time weather data via HTTP   |
 | Automation      | GitHub Actions           | Collects/transforms data every minute   |
-| Storage         | JSON / CSV               | Saves raw and clean data files          |
+| Storage         | JSON / CSV (external repo)| Saves raw and clean data files          |
 | Transformation  | pandas                   | Normalizes and extracts fields          |
 | Visualization   | Streamlit + Plotly       | Interactive dashboard and metrics       |
 
@@ -28,13 +34,11 @@ weather-data-pipeline/
 │   └── config.toml               # Forces wide mode for dashboard
 ├── data/
 │   ├── raw_weather_*.json        # Raw weather data from API
-│   └── clean_weather.csv         # Cleaned weather log for analysis
+│   └── clean_weather.csv         # (Deprecated: now tracked in data repo)
 ├── .github/workflows/
 │   └── update_weather.yml        # GitHub Actions workflow for automation
 └── weather_snapshot_bars.png     # Snapshot of chart output
-```
 
----
 
 ## 🧪 How to Run It
 
@@ -83,9 +87,10 @@ weather-data-pipeline/
 
 ## ⚙️ How the Automation Works
 
-- **Data is collected every minute using GitHub Actions** (your computer doesn’t need to be on).
-- Each new reading is appended to the CSV, keeping the dashboard always up to date.
-- `.streamlit/config.toml` ensures the dashboard uses the full page width (wide layout).
+- Data is collected every minute using GitHub Actions (your computer doesn’t need to be on).
+- Automated commits with updated CSV are now sent to a dedicated data repository.
+- The main project repository only shows development changes, not automated data pushes.
+- .streamlit/config.toml ensures the dashboard uses the full page width (wide layout).
 - All source code is versioned and workflows are fully transparent.
 
 ---
@@ -100,7 +105,11 @@ This simulates IoT-like sensor collection using public APIs — ideal for:
 - Simulating embedded devices/data pipelines with zero cost
 
 ---
-
+ℹ️ Frequently Asked
+Q: Why is there a separate data repo?
+A: Automated, high-frequency commits (actions-user) would flood the main project’s history and affect code review/portfolio value.
+Now only human commits appear here, while all data is versioned in weather-data-pipeline-data.
+---
 ## 📌 Author
 
 **Daniel Hernandes Gomes**  
