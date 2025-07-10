@@ -207,6 +207,7 @@ if show_temp_humid:
     st.plotly_chart(fig, use_container_width=True)
 
 # ===== HEATMAP (MAPA DE CALOR) DE TEMPERATURA POR HORA E DIA =====
+
 if show_heatmap:
     # Adiciona colunas de hora e dia
     df_filtered["day"] = df_filtered["datetime"].dt.date
