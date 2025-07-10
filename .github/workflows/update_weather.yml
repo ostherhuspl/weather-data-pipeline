@@ -44,10 +44,11 @@ jobs:
         env:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
-          cp data/clean_weather.csv data-repo/clean_weather.csv
           cd data-repo
           git config user.name "actions-user"
           git config user.email "actions@github.com"
+          git pull origin main --rebase || true
+          cp ../data/clean_weather.csv clean_weather.csv
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
