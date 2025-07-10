@@ -1,7 +1,4 @@
 # transform_weather.py
-# Transforma os dados brutos JSON em CSV limpo
-# Transforms raw weather JSON data into clean CSV format
-
 import os
 import json
 import pandas as pd
@@ -13,7 +10,7 @@ json_files = sorted([f for f in os.listdir(data_dir) if f.startswith("raw_weathe
 
 if not json_files:
     print("❌ Nenhum arquivo encontrado. / No files found.")
-    exit(1)
+    exit()
 
 latest_file = os.path.join(data_dir, json_files[-1])
 
@@ -24,9 +21,9 @@ now_warsaw = datetime.now(warsaw_tz).strftime("%Y-%m-%d %H:%M:%S")
 with open(latest_file, "r", encoding="utf-8") as f:
     raw = json.load(f)
 
-# Verifica se resposta da API tem campos esperados
-if "name" not in raw or "main" not in raw or "weather" not in raw or "wind" not in raw:
-    print("❌ Erro: JSON recebido não tem os campos esperados. Veja abaixo:")
+# Protege para não sobrescrever arquivo em caso de erro na API
+if "main" not in raw or "name" not in raw or "wind" not in raw or "weather" not in raw:
+    print("❌ JSON recebido não tem os campos esperados. Veja abaixo:")
     print(json.dumps(raw, indent=2, ensure_ascii=False))
     exit(1)
 
@@ -40,14 +37,17 @@ entry = {
     "description": raw["weather"][0]["description"]
 }
 
-df = pd.DataFrame([entry])
-
 csv_path = os.path.join(data_dir, "clean_weather.csv")
 
-# Append new data without overwriting
+# Garantir que não duplica por erro: só append se não for o mesmo timestamp da última linha
 if os.path.exists(csv_path):
-    df.to_csv(csv_path, mode='a', header=False, index=False)
+    df_existing = pd.read_csv(csv_path)
+    # Se já tem uma linha igual (mesmo datetime), não duplica
+    if not (df_existing['datetime'].astype(str) == entry["datetime"]).any():
+        df_new = pd.DataFrame([entry])
+        df_new.to_csv(csv_path, mode='a', header=False, index=False)
 else:
-    df.to_csv(csv_path, index=False)
+    df_new = pd.DataFrame([entry])
+    df_new.to_csv(csv_path, index=False)
 
 print("✔ Dados limpos adicionados ao clean_weather.csv / Clean data appended.")

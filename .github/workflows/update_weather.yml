@@ -18,19 +18,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Pull latest code before running scripts
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git reset --hard HEAD
-          git pull --rebase --autostash
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Pull latest clean_weather.csv from DATA repo
+        env:
+          DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
+        run: |
+          rm -f data/clean_weather.csv
+          git clone https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git data-repo
+          if [ -f data-repo/clean_weather.csv ]; then
+            cp data-repo/clean_weather.csv data/clean_weather.csv
+          fi
 
       - name: Run weather_collector.py
         env:
@@ -40,23 +40,14 @@ jobs:
       - name: Run transform_weather.py
         run: python transform_weather.py
 
-      - name: Push clean_weather.csv to DATA repo
+      - name: Commit and push clean_weather.csv to DATA repo
         env:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
-          mkdir tempdata
-          cd tempdata
-          git init
+          cp data/clean_weather.csv data-repo/clean_weather.csv
+          cd data-repo
           git config user.name "actions-user"
           git config user.email "actions@github.com"
-          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git
-          git fetch origin main || true
-          git checkout main || git checkout -b main
-          git pull origin main --rebase || true
-          cp ../data/clean_weather.csv clean_weather.csv
           git add clean_weather.csv
           git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
           git push origin main
-          cd ..
-          rm -rf tempdata
-
