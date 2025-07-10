@@ -25,7 +25,7 @@ This project demonstrates a **full mini data engineering pipeline**: real-time d
 
 ## 📦 File Structure
 
-```bash
+
 weather-data-pipeline/
 ├── weather_collector.py          # Collects and stores weather JSON data
 ├── transform_weather.py          # Transforms and cleans the data to CSV
