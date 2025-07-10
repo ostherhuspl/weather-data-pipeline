@@ -38,8 +38,7 @@ weather-data-pipeline/
 ├── .github/workflows/
 │   └── update_weather.yml        # GitHub Actions workflow for automation
 └── weather_snapshot_bars.png     # Snapshot of chart output
-
-```bash
+```
 ---
 
 ## 🧪 How to Run It
