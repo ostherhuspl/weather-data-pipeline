@@ -27,6 +27,7 @@ jobs:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
           rm -f data/clean_weather.csv
+          mkdir -p data  # <-- Garante que a pasta exista!
           git clone https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git data-repo
           if [ -f data-repo/clean_weather.csv ]; then
             cp data-repo/clean_weather.csv data/clean_weather.csv
