@@ -44,19 +44,19 @@ jobs:
         env:
           DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
         run: |
-          cd data
+          mkdir tempdata
+          cd tempdata
           git init
           git config user.name "actions-user"
           git config user.email "actions@github.com"
-          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git || true
+          git remote add origin https://x-access-token:${DATA_REPO_TOKEN}@github.com/ostherhuspl/weather-data-pipeline-data.git
           git fetch origin main || true
           git checkout main || git checkout -b main
           git pull origin main --rebase || true
-          # Só faz commit se o arquivo mudou
-          if ! cmp -s clean_weather.csv clean_weather.csv; then
-            git add clean_weather.csv
-            git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
-            git push origin main
-          else
-            echo "No changes to commit"
-          fi
+          cp ../data/clean_weather.csv clean_weather.csv
+          git add clean_weather.csv
+          git commit -m "update: new weather data via GitHub Actions" || echo "no changes"
+          git push origin main
+          cd ..
+          rm -rf tempdata
+
