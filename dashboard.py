@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
+import numpy as np
 
 st.set_page_config(layout="wide")
+from streamlit_autorefresh import st_autorefresh
+st_autorefresh(interval=60000, key="refresh")  # Atualiza a cada 60 segundos | auto refresh every 60 seconds
 
 # Carrega os dados limpos
 csv_url = "https://raw.githubusercontent.com/ostherhuspl/weather-data-pipeline-data/main/clean_weather.csv"
@@ -19,7 +22,7 @@ if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
 
-# GIFs de tempo
+# ====== GIFs ======
 weather_gifs = {
     "clear": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExajZrazN1cHh6Z3F2a3dnZG1nZmoyZXhwejZ1c2ZmdXh5Z252d3BucCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FQQNs0UIOIMsU/giphy.gif",
     "rain": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2E4Z3A2YnNneXkzZWlpamFmYXZlbmR0dHo2bWtwMjZjZXJqZXJ6bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/udU9ZCWcTGpLq/giphy.gif",
@@ -78,13 +81,11 @@ with col2:
     else:
         df_filtered = df.copy()
 
-    # AQUI: TABELA LOGO ABAIXO DO SLIDER
+    # TABELA LOGO ABAIXO DO SLIDER
     st.dataframe(
         df_filtered.sort_values("datetime", ascending=False).head(6),
         use_container_width=True
     )
-
-# ---- daqui pra baixo seguem os gráficos e checkboxes  ----
 
 # ==== CHECKBOXES E GRÁFICOS ====
 col1, col2, col3 = st.columns(3)
@@ -97,6 +98,7 @@ with col2:
 with col3:
     show_hist = st.checkbox("📊 Histograma Temp. | Time histogram", value=True)
     show_temp_humid = st.checkbox("📈 Temp x Umidade | Temp x Hum", value=True)
+    show_heatmap = st.checkbox("🔥 Mapa de Calor (Heatmap)", value=True)
 
 if show_temp:
     fig = go.Figure()
@@ -203,3 +205,45 @@ if show_temp_humid:
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
+
+# ===== HEATMAP (MAPA DE CALOR) DE TEMPERATURA POR HORA E DIA =====
+if show_heatmap:
+    # Adiciona colunas de hora e dia
+    df_filtered["day"] = df_filtered["datetime"].dt.date
+    df_filtered["hour"] = df_filtered["datetime"].dt.hour
+
+    # Cria tabela dinâmica: linhas = hora, colunas = dia, valores = média temp
+    heatmap_data = pd.pivot_table(
+        df_filtered,
+        values="temperature",
+        index="hour",
+        columns="day",
+        aggfunc=np.mean
+    )
+
+    # Cores customizadas estilo "Inferno" (legal para temperaturas)
+    colorscale = [
+        [0, "#220466"], [0.10, "#2741B7"], [0.33, "#19B7F6"], [0.50, "#B4F6FF"],
+        [0.66, "#F1D302"], [0.85, "#F95D06"], [1, "#D7263D"]
+    ]
+
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=heatmap_data.values,
+            x=[str(c) for c in heatmap_data.columns],
+            y=heatmap_data.index,
+            colorscale=colorscale,
+            colorbar=dict(title="°C"),
+            hovertemplate='Dia: %{x}<br>Hora: %{y}h<br>Temp: %{z:.1f}°C<extra></extra>'
+        )
+    )
+    fig.update_layout(
+        title="🔥 Mapa de Calor - Temperatura (hora x dia) / Heatmap Temperature (Hour x Day)",
+        xaxis_title="Dia / Day",
+        yaxis_title="Hora / Hour",
+        template="plotly_white",
+        margin=dict(l=40, r=30, t=60, b=30),
+        yaxis=dict(autorange="reversed")
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
