@@ -176,62 +176,57 @@ if show_wind:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# =========== NOVO HISTOGRAMA AVANÇADO ===========
+# =========== GRÁFICO DE FAIXA DE TEMPERATURA ===========
 if show_hist:
+    st.subheader("🌈 Faixa de Temperatura Diária / Daily Temperature Range")
+
+    df_band = df_filtered.copy()
+    df_band["date"] = df_band["datetime"].dt.date
+
+    temp_range = df_band.groupby("date").agg(
+        min_temp=("temperature", "min"),
+        max_temp=("temperature", "max"),
+        avg_temp=("temperature", "mean")
+    ).reset_index()
+
     fig = go.Figure()
 
-    # Temperatura real
-    fig.add_trace(go.Histogram(
-        x=df_filtered["temperature"],
-        name="Temperatura (°C)",
-        nbinsx=18,
-        marker=dict(
-            color="rgba(255,100,20,0.62)",
-            line=dict(color="darkred", width=2)
-        ),
-        opacity=0.82,
-        xbins=dict(size=1.2),
-        hovertemplate="Temp: %{x:.1f}°C<br>Freq: %{y}"
+    fig.add_trace(go.Scatter(
+        x=temp_range["date"],
+        y=temp_range["max_temp"],
+        mode="lines",
+        line=dict(width=0),
+        showlegend=False,
+        hoverinfo='skip'
     ))
 
-    # Sensação térmica (sobreposição)
-    if "feels_like" in df_filtered.columns:
-        fig.add_trace(go.Histogram(
-            x=df_filtered["feels_like"],
-            name="Sensação Térmica (°C)",
-            nbinsx=18,
-            marker=dict(
-                color="rgba(80,90,255,0.44)",
-                line=dict(color="midnightblue", width=2)
-            ),
-            opacity=0.65,
-            xbins=dict(size=1.2),
-            hovertemplate="Feels Like: %{x:.1f}°C<br>Freq: %{y}"
-        ))
+    fig.add_trace(go.Scatter(
+        x=temp_range["date"],
+        y=temp_range["min_temp"],
+        fill='tonexty',
+        fillcolor='rgba(255, 100, 100, 0.3)',
+        line=dict(width=0),
+        mode='lines',
+        name='Faixa de Temperatura'
+    ))
 
-    # Linhas de média e mediana (temperatura)
-    mean_temp = df_filtered["temperature"].mean()
-    median_temp = df_filtered["temperature"].median()
-    fig.add_vline(
-        x=mean_temp, line_width=2, line_dash="dash", line_color="red",
-        annotation_text=f"Média: {mean_temp:.1f}°C", annotation_position="top right"
-    )
-    fig.add_vline(
-        x=median_temp, line_width=2, line_dash="dot", line_color="orange",
-        annotation_text=f"Mediana: {median_temp:.1f}°C", annotation_position="top left"
-    )
+    fig.add_trace(go.Scatter(
+        x=temp_range["date"],
+        y=temp_range["avg_temp"],
+        mode="lines+markers",
+        line=dict(color="firebrick", width=2),
+        name="Temperatura Média"
+    ))
 
     fig.update_layout(
-        title="📊 <b>Histograma de Temperaturas / Temperature Histogram</b>",
-        xaxis_title="°C",
-        yaxis_title="Frequência / Frequency",
-        barmode="overlay",  # Sobrepor barras
-        bargap=0.17,
-        bargroupgap=0.09,
+        title="🌡️ Faixa de Temperatura Diária",
+        xaxis_title="Data",
+        yaxis_title="Temperatura (°C)",
         template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
-        font=dict(size=15)
+        hovermode="x unified",
+        margin=dict(t=40, b=40)
     )
+
     st.plotly_chart(fig, use_container_width=True)
 
 if show_temp_humid:
@@ -250,6 +245,7 @@ if show_temp_humid:
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
+
 
 # ===== HEATMAP (MAPA DE CALOR) DE TEMPERATURA POR HORA E DIA =====
 if show_heatmap:
