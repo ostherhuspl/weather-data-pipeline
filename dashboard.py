@@ -176,58 +176,41 @@ if show_wind:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# =========== GRÁFICO DE FAIXA DE TEMPERATURA ===========
+# =========== GRÁFICO DE ÍNDICE DE CONFORTO CLIMÁTICO ===========
 if show_hist:
-    st.subheader("🌈 Faixa de Temperatura Diária / Daily Temperature Range")
+    st.subheader("🧠 Índice de Conforto Climático")
 
-    df_band = df_filtered.copy()
-    df_band["date"] = df_band["datetime"].dt.date
+    df_comfort = df_filtered.copy()
 
-    temp_range = df_band.groupby("date").agg(
-        min_temp=("temperature", "min"),
-        max_temp=("temperature", "max"),
-        avg_temp=("temperature", "mean")
-    ).reset_index()
+    if all(col in df_comfort.columns for col in ["temperature", "feels_like", "humidity"]):
+        df_comfort["comfort_index"] = (
+            df_comfort["feels_like"] + df_comfort["temperature"] + (100 - df_comfort["humidity"])
+        ) / 3
 
-    fig = go.Figure()
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=df_comfort["datetime"],
+            y=df_comfort["comfort_index"],
+            marker=dict(
+                color=df_comfort["comfort_index"],
+                colorscale='RdYlGn',
+                colorbar=dict(title="Índice")
+            ),
+            name="Conforto Climático"
+        ))
 
-    fig.add_trace(go.Scatter(
-        x=temp_range["date"],
-        y=temp_range["max_temp"],
-        mode="lines",
-        line=dict(width=0),
-        showlegend=False,
-        hoverinfo='skip'
-    ))
+        fig.update_layout(
+            title="🧠 Índice de Conforto Climático (quanto mais alto, mais agradável)",
+            xaxis_title="Data/Hora",
+            yaxis_title="Índice de Conforto",
+            template="plotly_white",
+            hovermode="x unified",
+            margin=dict(t=40, b=40)
+        )
 
-    fig.add_trace(go.Scatter(
-        x=temp_range["date"],
-        y=temp_range["min_temp"],
-        fill='tonexty',
-        fillcolor='rgba(255, 100, 100, 0.3)',
-        line=dict(width=0),
-        mode='lines',
-        name='Faixa de Temperatura'
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=temp_range["date"],
-        y=temp_range["avg_temp"],
-        mode="lines+markers",
-        line=dict(color="firebrick", width=2),
-        name="Temperatura Média"
-    ))
-
-    fig.update_layout(
-        title="🌡️ Faixa de Temperatura Diária",
-        xaxis_title="Data",
-        yaxis_title="Temperatura (°C)",
-        template="plotly_white",
-        hovermode="x unified",
-        margin=dict(t=40, b=40)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("Dados insuficientes para calcular o índice de conforto.")
 
 if show_temp_humid:
     fig = go.Figure()
