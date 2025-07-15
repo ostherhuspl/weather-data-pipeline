@@ -176,9 +176,9 @@ if show_wind:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# =========== GRÁFICO DE ÍNDICE DE CONFORTO CLIMÁTICO ===========
+# =========== GRÁFICO DE ÍNDICE DE CONFORTO CLIMÁTICO | CLIMATE COMFORT INDEX CHART ===========
 if show_hist:
-    st.subheader("🧠 Índice de Conforto Climático")
+    st.subheader("🧠 Índice de Conforto Climático / Climate Comfort Index")
 
     df_comfort = df_filtered.copy()
 
@@ -200,9 +200,9 @@ if show_hist:
         ))
 
         fig.update_layout(
-            title="🧠 Índice de Conforto Climático (quanto mais alto, mais agradável)",
-            xaxis_title="Data/Hora",
-            yaxis_title="Índice de Conforto",
+            title="🧠 Índice de Conforto Climático / Climate Comfort Index (quanto mais alto, mais agradável | the higher, the more pleasant)",
+            xaxis_title="Data/Hora | Date/Time",
+            yaxis_title="Índice de Conforto | Comfort Index",
             template="plotly_white",
             hovermode="x unified",
             margin=dict(t=40, b=40)
@@ -210,25 +210,72 @@ if show_hist:
 
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("Dados insuficientes para calcular o índice de conforto.")
+        st.warning("Dados insuficientes para calcular o índice de conforto. / Not enough data to compute comfort index.")
 
+# =========== GRÁFICO DE UMIDADE x TEMPERATURA | HUMIDITY x TEMPERATURE ===========
 if show_temp_humid:
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df_filtered["datetime"], y=df_filtered["humidity"],
-        mode="lines+markers", name="Umidade (%)", marker=dict(color="#297FFF")
-    ))
-    fig.add_trace(go.Scatter(
-        x=df_filtered["datetime"], y=df_filtered["temperature"],
-        mode="lines+markers", name="Temp Bulbo Seco (°C)", marker=dict(color="red")
-    ))
-    fig.update_layout(
-        title="📈 Umidade x Temperatura / Humidity x Temperature",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="Valor / Value",
-        template="plotly_white", hovermode='x unified'
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("💧📉 Relação Umidade x Temperatura com Destaques / Humidity vs Temperature with Highlights")
 
+    fig = go.Figure()
+
+    # --- Área sombreada representando a umidade | Shaded area for humidity ---
+    fig.add_trace(go.Scatter(
+        x=df_filtered["datetime"],
+        y=df_filtered["humidity"],
+        mode="lines",
+        fill='tozeroy',
+        name="Umidade (%) | Humidity (%)",
+        line=dict(color="#297FFF", width=2),
+        fillcolor="rgba(41,127,255,0.2)",
+        hoverinfo="x+y"
+    ))
+
+    # --- Linha representando a temperatura | Line for dry-bulb temperature ---
+    fig.add_trace(go.Scatter(
+        x=df_filtered["datetime"],
+        y=df_filtered["temperature"],
+        mode="lines+markers",
+        name="Temp. Bulbo Seco (°C) | Dry-Bulb Temp. (°C)",
+        line=dict(color="crimson", width=3),
+        marker=dict(size=6),
+        hoverinfo="x+y"
+    ))
+
+    # --- Destaques para valores extremos | Highlighting max and min temps ---
+    if not df_filtered.empty:
+        idx_max = df_filtered["temperature"].idxmax()
+        idx_min = df_filtered["temperature"].idxmin()
+
+        fig.add_trace(go.Scatter(
+            x=[df_filtered.loc[idx_max, "datetime"]],
+            y=[df_filtered.loc[idx_max, "temperature"]],
+            mode="markers+text",
+            marker=dict(color='red', size=14, symbol="star"),
+            text=[f"Máx: {df_filtered['temperature'].max():.1f}°C"],
+            textposition="top center",
+            showlegend=False
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=[df_filtered.loc[idx_min, "datetime"]],
+            y=[df_filtered.loc[idx_min, "temperature"]],
+            mode="markers+text",
+            marker=dict(color='blue', size=14, symbol="star"),
+            text=[f"Mín: {df_filtered['temperature'].min():.1f}°C"],
+            textposition="bottom center",
+            showlegend=False
+        ))
+
+    fig.update_layout(
+        title="💧📉 Umidade x Temperatura com Destaques de Extremos / Humidity vs Temperature with Extremes",
+        xaxis_title="Data/Hora | Date/Time",
+        yaxis_title="Valor | Value",
+        template="plotly_white",
+        hovermode="x unified",
+        margin=dict(t=40, b=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 # ===== HEATMAP (MAPA DE CALOR) DE TEMPERATURA POR HORA E DIA =====
 if show_heatmap:
@@ -268,3 +315,4 @@ if show_heatmap:
         yaxis=dict(autorange="reversed")
     )
     st.plotly_chart(fig, use_container_width=True)
+
