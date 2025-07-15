@@ -2,17 +2,17 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
-from streamlit_autorefresh import st_autorefresh
-st_autorefresh(interval=60000, key="refresh")  # Atualiza a cada 60 segundos
+st_autorefresh(interval=60000, key="refresh")
 
-# Carrega os dados limpos
+# ======== DADOS ======== DATA
 csv_url = "https://raw.githubusercontent.com/ostherhuspl/weather-data-pipeline-data/main/clean_weather.csv"
 df = pd.read_csv(csv_url)
 
 if "datetime" not in df.columns:
-    st.error("O arquivo CSV não contém a coluna 'datetime'. Verifique o pipeline.")
+    st.error("O arquivo CSV não contém a coluna 'datetime'. Verifique o pipeline. / CSV file missing 'datetime' column. Check the pipeline.")
     st.stop()
 
 df["datetime"] = pd.to_datetime(df["datetime"], errors='coerce')
@@ -32,6 +32,7 @@ weather_gifs = {
     "drizzle": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmJ6a2JocHIzdnkyaWZ6ajBrNHRrd2RsdnRha2NpZmtuN2NpeXdyZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/o6ijBdTg64Vu2pyNFb/giphy.gif",
     "storm": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHAxeDF0cHg3aHd6bjB3bHcwMDcwd2Q1ejMyNmo4cWM5NWR6dWM0ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LGY967AFmrueY/giphy.gif",
 }
+
 def get_weather_gif(description):
     desc = str(description).lower()
     if "clear" in desc or "céu limpo" in desc or "sun" in desc or "ensolarado" in desc:
@@ -53,125 +54,101 @@ def get_weather_gif(description):
 latest = df.iloc[-1]
 gif_url = get_weather_gif(str(latest["description"]))
 
-# ==== LAYOUT: GIF (col1) / SLIDER + TABELA (col2) ====
-col1, col2 = st.columns([1, 2])
+# TODO: Integrar bloco de GIF + sliders + tabela (revisão futura)
+# TODO: Reposicionar esse bloco visual acima do filtro, slider e checkboxes para manter a experiência visual
 
-with col1:
-    st.markdown("### ☀️⛅️🌧️ Estado do céu / Sky condition")
-    st.image(gif_url, caption=f"{latest['description'].capitalize()} / {latest['description'].capitalize()}")
-
-with col2:
-    if len(df) >= 2:
-        min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
-        max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
-        date_range = st.slider(
-            "Selecione o período / Select the period:",
-            min_value=min_date,
-            max_value=max_date,
-            value=(min_date, max_date),
-            format="DD/MM/YYYY HH:mm"
-        )
-    else:
-        st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas.")
-        date_range = (None, None)
-
-    if date_range[0] is not None and date_range[1] is not None:
-        mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
-        df_filtered = df.loc[mask].copy()
-    else:
-        df_filtered = df.copy()
-
-    # TABELA LOGO ABAIXO DO SLIDER
-    st.dataframe(
-        df_filtered.sort_values("datetime", ascending=False).head(6),
-        use_container_width=True
+# ====== FILTRO DE DATAS ======DATA FILTER
+if len(df) >= 2:
+    min_date = pd.to_datetime(df["datetime"].min()).to_pydatetime()
+    max_date = pd.to_datetime(df["datetime"].max()).to_pydatetime()
+    date_range = st.slider(
+        "Selecione o período / Select the period:",
+        min_value=min_date,
+        max_value=max_date,
+        value=(min_date, max_date),
+        format="DD/MM/YYYY HH:mm"
     )
+else:
+    st.warning("Precisa de pelo menos 2 linhas de dados para o filtro de datas. / At least 2 rows required for date filter.")
+    date_range = (None, None)
 
-# ==== CHECKBOXES E GRÁFICOS ====
+if date_range[0] is not None and date_range[1] is not None:
+    mask = (df["datetime"] >= date_range[0]) & (df["datetime"] <= date_range[1])
+    df_filtered = df.loc[mask].copy()
+else:
+    df_filtered = df.copy()
+
+# ====== CHECKBOXES PARA GRÁFICOS ======
 col1, col2, col3 = st.columns(3)
 with col1:
     show_temp = st.checkbox("🌡️ Temperatura | Temperature", value=True)
-    show_feels = st.checkbox("🥵 Sensação Térmica | Thermal Sensation", value=True)
+    show_feels = st.checkbox("🥵 Sensação Térmica | Feels Like", value=True)
 with col2:
     show_humid = st.checkbox("💧 Umidade | Humidity", value=True)
     show_wind = st.checkbox("🌬️ Vento | Wind", value=True)
 with col3:
-    show_hist = st.checkbox("📊 Histograma Temp. | Time histogram", value=True)
-    show_temp_humid = st.checkbox("📈 Temp x Umidade | Temp x Hum", value=True)
-    show_heatmap = st.checkbox("🔥 Mapa de Calor (Heatmap)", value=True)
+    show_hist = st.checkbox("🧠 Conforto Climático | Climate Comfort", value=True)
+    show_temp_humid = st.checkbox("💧📉 Umidade x Temp | Humidity x Temp", value=True)
+    show_heatmap = st.checkbox("🔥 Mapa de Calor | Heatmap", value=True)
+
+# ======== GRÁFICOS MELHORADOS ========
 
 if show_temp:
+    st.subheader("🌡️ Temperatura ao Longo do Tempo / Temperature Over Time")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df_filtered["datetime"], y=df_filtered["temperature"],
-        mode="lines+markers", name="Temperatura (°C)", marker=dict(color='red')
+        mode="lines+markers", name="Temperatura (°C) | Temperature (°C)",
+        line=dict(color='red'), marker=dict(size=6)
     ))
-    if len(df_filtered) > 0:
-        idx_max = df_filtered["temperature"].idxmax()
-        fig.add_trace(go.Scatter(
-            x=[df_filtered["datetime"].loc[idx_max]], y=[df_filtered["temperature"].max()],
-            mode="markers+text",
-            marker=dict(color='red', size=14, symbol="star"),
-            text=[f"Máx: {df_filtered['temperature'].max():.1f}°C"], textposition="top center",
-            showlegend=False
-        ))
-        idx_min = df_filtered["temperature"].idxmin()
-        fig.add_trace(go.Scatter(
-            x=[df_filtered["datetime"].loc[idx_min]], y=[df_filtered["temperature"].min()],
-            mode="markers+text",
-            marker=dict(color='blue', size=14, symbol="star"),
-            text=[f"Mín: {df_filtered['temperature'].min():.1f}°C"], textposition="bottom center",
-            showlegend=False
-        ))
-        fig.add_trace(go.Scatter(
-            x=[df_filtered["datetime"].iloc[-1]], y=[df_filtered["temperature"].iloc[-1]],
-            mode="markers+text",
-            marker=dict(color='orange', size=16, symbol="circle"),
-            text=[f"Atual: {df_filtered['temperature'].iloc[-1]:.1f}°C"], textposition="middle right",
-            showlegend=False
-        ))
     fig.update_layout(
-        title="🌡️ Temperatura (°C) / Temperature (°C)",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
-        template="plotly_white", hovermode='x unified', margin=dict(t=40, b=40)
+        xaxis_title="Data/Hora | Date/Time",
+        yaxis_title="Temperatura (°C) | Temperature (°C)",
+        template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
 if show_feels:
+    st.subheader("🥵 Sensação Térmica / Feels Like")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df_filtered["datetime"], y=df_filtered["feels_like"],
-        mode="lines+markers", name="Feels Like (°C)", marker=dict(color='#7e3ff2')
+        mode="lines+markers", name="Sensação Térmica (°C) | Feels Like (°C)",
+        line=dict(color='#7e3ff2'), marker=dict(size=6)
     ))
     fig.update_layout(
-        title="🥵 Sensação Térmica (°C) / Feels Like (°C)",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
+        xaxis_title="Data/Hora | Date/Time",
+        yaxis_title="Sensação (°C) | Feels Like (°C)",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
 if show_humid:
+    st.subheader("💧 Umidade Relativa / Relative Humidity")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df_filtered["datetime"], y=df_filtered["humidity"],
-        mode="lines+markers", name="Umidade (%)", marker=dict(color="#297FFF")
+        mode="lines+markers", name="Umidade (%) | Humidity (%)",
+        line=dict(color="#297FFF"), marker=dict(size=6)
     ))
     fig.update_layout(
-        title="💧 Umidade (%) / Humidity (%)",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="%",
+        xaxis_title="Data/Hora | Date/Time",
+        yaxis_title="Umidade (%) | Humidity (%)",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
 if show_wind:
+    st.subheader("🌬️ Velocidade do Vento / Wind Speed")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df_filtered["datetime"], y=df_filtered["wind_speed"],
-        mode="lines+markers", name="Vento (m/s)", marker=dict(color="#27ae60")
+        mode="lines+markers", name="Vento (m/s) | Wind (m/s)",
+        line=dict(color="#27ae60"), marker=dict(size=6)
     ))
     fig.update_layout(
-        title="🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="m/s",
+        xaxis_title="Data/Hora | Date/Time",
+        yaxis_title="Velocidade (m/s) | Speed (m/s)",
         template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
