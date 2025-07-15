@@ -176,66 +176,82 @@ if show_wind:
     )
     st.plotly_chart(fig, use_container_width=True)
 
+# =========== NOVO HISTOGRAMA AVANÇADO ===========
 if show_hist:
     fig = go.Figure()
+
+    # Temperatura real
     fig.add_trace(go.Histogram(
-        x=df_filtered["temperature"], nbinsx=15, name="Temperatura (°C)",
-        marker=dict(color="tomato", line=dict(color="darkred", width=1.5))
+        x=df_filtered["temperature"],
+        name="Temperatura (°C)",
+        nbinsx=18,
+        marker=dict(
+            color="rgba(255,100,20,0.62)",
+            line=dict(color="darkred", width=2)
+        ),
+        opacity=0.82,
+        xbins=dict(size=1.2),
+        hovertemplate="Temp: %{x:.1f}°C<br>Freq: %{y}"
     ))
+
+    # Sensação térmica (sobreposição)
+    if "feels_like" in df_filtered.columns:
+        fig.add_trace(go.Histogram(
+            x=df_filtered["feels_like"],
+            name="Sensação Térmica (°C)",
+            nbinsx=18,
+            marker=dict(
+                color="rgba(80,90,255,0.44)",
+                line=dict(color="midnightblue", width=2)
+            ),
+            opacity=0.65,
+            xbins=dict(size=1.2),
+            hovertemplate="Feels Like: %{x:.1f}°C<br>Freq: %{y}"
+        ))
+
+    # Linhas de média e mediana (temperatura)
+    mean_temp = df_filtered["temperature"].mean()
+    median_temp = df_filtered["temperature"].median()
+    fig.add_vline(
+        x=mean_temp, line_width=2, line_dash="dash", line_color="red",
+        annotation_text=f"Média: {mean_temp:.1f}°C", annotation_position="top right"
+    )
+    fig.add_vline(
+        x=median_temp, line_width=2, line_dash="dot", line_color="orange",
+        annotation_text=f"Mediana: {median_temp:.1f}°C", annotation_position="top left"
+    )
+
     fig.update_layout(
-        title="📊 Histograma Temperatura / Temp Histogram",
-        xaxis_title="°C", yaxis_title="Frequência / Frequency",
-        template="plotly_white"
+        title="📊 <b>Histograma de Temperaturas / Temperature Histogram</b>",
+        xaxis_title="°C",
+        yaxis_title="Frequência / Frequency",
+        barmode="overlay",  # Sobrepor barras
+        bargap=0.17,
+        bargroupgap=0.09,
+        template="plotly_white",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+        font=dict(size=15)
     )
     st.plotly_chart(fig, use_container_width=True)
 
 if show_temp_humid:
     fig = go.Figure()
-    # Umidade
     fig.add_trace(go.Scatter(
         x=df_filtered["datetime"], y=df_filtered["humidity"],
-        mode="lines+markers", name="Umidade (%)", marker=dict(color="#297FFF"),
-        line=dict(width=2)
+        mode="lines+markers", name="Umidade (%)", marker=dict(color="#297FFF")
     ))
-    # Temperatura de Bulbo Seco (com customização avançada!)
     fig.add_trace(go.Scatter(
-        x=df_filtered["datetime"],
-        y=df_filtered["temperature"],
-        mode="lines+markers",
-        name="Temp Bulbo Seco (°C)",
-        line=dict(color="orange", width=4, shape="spline"),  # Linha suave e grossa
-        marker=dict(color="white", size=7, line=dict(color="red", width=2)),  # Marcador custom
-        fill="tozeroy", fillcolor="rgba(255,140,0,0.13)",   # Preenchimento laranja suave
+        x=df_filtered["datetime"], y=df_filtered["temperature"],
+        mode="lines+markers", name="Temp Bulbo Seco (°C)", marker=dict(color="red")
     ))
-    # Máximo
-    if len(df_filtered) > 0:
-        idx_max = df_filtered["temperature"].idxmax()
-        fig.add_trace(go.Scatter(
-            x=[df_filtered["datetime"].loc[idx_max]], y=[df_filtered["temperature"].max()],
-            mode="markers+text",
-            marker=dict(color='gold', size=18, symbol="star"),
-            text=[f"MAX: {df_filtered['temperature'].max():.1f}°C"], textposition="top center",
-            showlegend=False
-        ))
-        idx_min = df_filtered["temperature"].idxmin()
-        fig.add_trace(go.Scatter(
-            x=[df_filtered["datetime"].loc[idx_min]], y=[df_filtered["temperature"].min()],
-            mode="markers+text",
-            marker=dict(color='cyan', size=16, symbol="diamond"),
-            text=[f"MIN: {df_filtered['temperature'].min():.1f}°C"], textposition="bottom center",
-            showlegend=False
-        ))
     fig.update_layout(
         title="📈 Umidade x Temperatura / Humidity x Temperature",
         xaxis_title="Data/Hora | Date/Time", yaxis_title="Valor / Value",
-        template="plotly_white", hovermode='x unified',
-        font=dict(size=15),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
 # ===== HEATMAP (MAPA DE CALOR) DE TEMPERATURA POR HORA E DIA =====
-
 if show_heatmap:
     df_filtered["day"] = df_filtered["datetime"].dt.date
     df_filtered["hour"] = df_filtered["datetime"].dt.hour
@@ -248,6 +264,7 @@ if show_heatmap:
         aggfunc=np.mean
     )
 
+    # Cores customizadas estilo "Inferno"
     colorscale = [
         [0, "#220466"], [0.10, "#2741B7"], [0.33, "#19B7F6"], [0.50, "#B4F6FF"],
         [0.66, "#F1D302"], [0.85, "#F95D06"], [1, "#D7263D"]
