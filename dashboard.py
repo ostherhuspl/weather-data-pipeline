@@ -1,4 +1,4 @@
-ainda tá errado man. copiar o meu todo para o canvas, edita só o que precisa, vc perdeu meus links de gif, por exemplo: import streamlit as st
+import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
