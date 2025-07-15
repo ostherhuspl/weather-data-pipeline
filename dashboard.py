@@ -1,4 +1,3 @@
-###### Dashboard - Importing
 import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
@@ -88,95 +87,92 @@ with col2:
         use_container_width=True
     )
 
-# ================= GRÁFICO 1: Temperatura | Temperature =================
-if st.checkbox("🌡️ Temperatura | Temperature", value=True):
+# ==== CHECKBOXES E GRÁFICOS ====
+col1, col2, col3 = st.columns(3)
+with col1:
+    show_temp = st.checkbox("🌡️ Temperatura | Temperature", value=True)
+    show_feels = st.checkbox("🥵 Sensação Térmica | Thermal Sensation", value=True)
+with col2:
+    show_humid = st.checkbox("💧 Umidade | Humidity", value=True)
+    show_wind = st.checkbox("🌬️ Vento | Wind", value=True)
+with col3:
+    show_hist = st.checkbox("📊 Histograma Temp. | Time histogram", value=True)
+    show_temp_humid = st.checkbox("📈 Temp x Umidade | Temp x Hum", value=True)
+    show_heatmap = st.checkbox("🔥 Mapa de Calor (Heatmap)", value=True)
+
+if show_temp:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["datetime"],
-        y=df["temperature"],
-        mode="lines+markers",
-        name="Temperatura (°C) | Temperature (°C)",
-        marker=dict(color="#FF5733", size=6, symbol="circle"),
-        line=dict(width=3)
+        x=df_filtered["datetime"], y=df_filtered["temperature"],
+        mode="lines+markers", name="Temperatura (°C)", marker=dict(color='red')
     ))
-
+    if len(df_filtered) > 0:
+        idx_max = df_filtered["temperature"].idxmax()
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].loc[idx_max]], y=[df_filtered["temperature"].max()],
+            mode="markers+text",
+            marker=dict(color='red', size=14, symbol="star"),
+            text=[f"Máx: {df_filtered['temperature'].max():.1f}°C"], textposition="top center",
+            showlegend=False
+        ))
+        idx_min = df_filtered["temperature"].idxmin()
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].loc[idx_min]], y=[df_filtered["temperature"].min()],
+            mode="markers+text",
+            marker=dict(color='blue', size=14, symbol="star"),
+            text=[f"Mín: {df_filtered['temperature'].min():.1f}°C"], textposition="bottom center",
+            showlegend=False
+        ))
+        fig.add_trace(go.Scatter(
+            x=[df_filtered["datetime"].iloc[-1]], y=[df_filtered["temperature"].iloc[-1]],
+            mode="markers+text",
+            marker=dict(color='orange', size=16, symbol="circle"),
+            text=[f"Atual: {df_filtered['temperature'].iloc[-1]:.1f}°C"], textposition="middle right",
+            showlegend=False
+        ))
     fig.update_layout(
-        title={"text": "🌡️ Temperatura (°C) | Temperature (°C)", "x": 0.5, "xanchor": "center"},
-        xaxis_title="Data/Hora | Date/Time",
-        yaxis_title="°C",
-        template="plotly_white",
-        hovermode='x unified',
-        margin=dict(t=40, b=40),
-        plot_bgcolor='rgba(250,250,250,1)'
+        title="🌡️ Temperatura (°C) / Temperature (°C)",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
+        template="plotly_white", hovermode='x unified', margin=dict(t=40, b=40)
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# ================= GRÁFICO 2: Sensação Térmica | Feels Like =================
-if st.checkbox("🥵 Sensação Térmica | Thermal Sensation", value=True):
+if show_feels:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["datetime"],
-        y=df["feels_like"],
-        mode="lines+markers",
-        name="Sensação Térmica | Feels Like",
-        marker=dict(color="#9C27B0", size=6),
-        line=dict(width=3)
+        x=df_filtered["datetime"], y=df_filtered["feels_like"],
+        mode="lines+markers", name="Feels Like (°C)", marker=dict(color='#7e3ff2')
     ))
-
     fig.update_layout(
-        title={"text": "🥵 Sensação Térmica (°C) | Feels Like (°C)", "x": 0.5, "xanchor": "center"},
-        xaxis_title="Data/Hora | Date/Time",
-        yaxis_title="°C",
-        template="plotly_white",
-        hovermode='x unified',
-        margin=dict(t=40, b=40),
-        plot_bgcolor='rgba(250,250,255,1)'
+        title="🥵 Sensação Térmica (°C) / Feels Like (°C)",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
+        template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# ================= GRÁFICO 3: Umidade | Humidity =================
-if st.checkbox("💧 Umidade | Humidity", value=True):
+if show_humid:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["datetime"],
-        y=df["humidity"],
-        mode="lines+markers",
-        name="Umidade | Humidity",
-        marker=dict(color="#03A9F4", size=6),
-        line=dict(width=3)
+        x=df_filtered["datetime"], y=df_filtered["humidity"],
+        mode="lines+markers", name="Umidade (%)", marker=dict(color="#297FFF")
     ))
-
     fig.update_layout(
-        title={"text": "💧 Umidade (%) | Humidity (%)", "x": 0.5, "xanchor": "center"},
-        xaxis_title="Data/Hora | Date/Time",
-        yaxis_title="%",
-        template="plotly_white",
-        hovermode='x unified',
-        margin=dict(t=40, b=40),
-        plot_bgcolor='rgba(240,248,255,1)'
+        title="💧 Umidade (%) / Humidity (%)",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="%",
+        template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# ================= GRÁFICO 4: Vento | Wind Speed =================
-if st.checkbox("🌬️ Vento | Wind", value=True):
+if show_wind:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["datetime"],
-        y=df["wind_speed"],
-        mode="lines+markers",
-        name="Vento | Wind",
-        marker=dict(color="#4CAF50", size=6),
-        line=dict(width=3)
+        x=df_filtered["datetime"], y=df_filtered["wind_speed"],
+        mode="lines+markers", name="Vento (m/s)", marker=dict(color="#27ae60")
     ))
-
     fig.update_layout(
-        title={"text": "🌬️ Velocidade do Vento (m/s) | Wind Speed (m/s)", "x": 0.5, "xanchor": "center"},
-        xaxis_title="Data/Hora | Date/Time",
-        yaxis_title="m/s",
-        template="plotly_white",
-        hovermode='x unified',
-        margin=dict(t=40, b=40),
-        plot_bgcolor='rgba(240,255,240,1)'
+        title="🌬️ Velocidade do Vento (m/s) / Wind Speed (m/s)",
+        xaxis_title="Data/Hora | Date/Time", yaxis_title="m/s",
+        template="plotly_white", hovermode='x unified'
     )
     st.plotly_chart(fig, use_container_width=True)
 
