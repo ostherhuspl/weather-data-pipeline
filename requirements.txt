@@ -4,3 +4,4 @@ matplotlib
 streamlit-autorefresh
 pytz
 plotly
+meteocalc
