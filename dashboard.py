@@ -22,6 +22,12 @@ df = df.dropna(subset=["datetime"])
 if df.empty:
     st.warning("Nenhum dado disponível ainda. / No data available yet.")
     st.stop()
+# ====== Funções de conversão ======
+def c_to_f(c):
+    return (c * 9 / 5) + 32
+
+def ms_to_mph(ms):
+    return ms * 2.23694
 
 # ====== GIFs ======
 weather_gifs = {
@@ -139,29 +145,20 @@ if show_temp:
     st.plotly_chart(fig, use_container_width=True)
 
 # === Sensação Térmica===
-# Sensação térmica usando a biblioteca meteocalc
+# Sensação térmica usando a biblioteca meteocalc adicionada conversão de F para Cº
 df_filtered["feels_correct"] = df_filtered.apply(
-    lambda row: m_feels(row.temperature, row.humidity, row.wind_speed).c, axis=1
+    lambda row: m_feels(
+        c_to_f(row.temperature),
+        row.humidity,
+        ms_to_mph(row.wind_speed)
+    ).c,
+    axis=1
 )
 
-# Gráfico corrigido para sensação térmica
 if show_feels:
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df_filtered["datetime"],
-        y=df_filtered["feels_correct"],
-        mode="lines+markers",
-        line=dict(color="darkorange", width=2),
-        fill='tozeroy',
-        fillcolor="rgba(255,165,0,0.2)",
-        name="Sensação Térmica"
-    ))
-    fig.update_layout(
-        title="🥵 Sensação Térmica detalhada",
-        xaxis_title="Data/Hora",
-        yaxis_title="°C",
-        template="plotly_dark"
-    )
+    fig.add_trace(go.Scatter(x=df_filtered["datetime"], y=df_filtered["feels_correct"], mode="lines+markers", line=dict(color="darkorange", width=2), fill='tozeroy', fillcolor="rgba(255,165,0,0.2)", name="Sensação"))
+    fig.update_layout(title="🥵 Sensação Térmica detalhada", xaxis_title="Data/Hora", yaxis_title="°C", template="plotly_dark")
     st.plotly_chart(fig, use_container_width=True)
 
 
