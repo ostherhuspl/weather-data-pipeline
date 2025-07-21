@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
+from meteocalc import feels_like as m_feels
 
 st.set_page_config(layout="wide")
 from streamlit_autorefresh import st_autorefresh
@@ -137,18 +138,32 @@ if show_temp:
     )
     st.plotly_chart(fig, use_container_width=True)
 
+# === Sensação Térmica===
+# Sensação térmica usando a biblioteca meteocalc
+df_filtered["feels_correct"] = df_filtered.apply(
+    lambda row: m_feels(row.temperature, row.humidity, row.wind_speed).c, axis=1
+)
+
+# Gráfico corrigido para sensação térmica
 if show_feels:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df_filtered["datetime"], y=df_filtered["feels_like"],
-        mode="lines+markers", name="Feels Like (°C)", marker=dict(color='#7e3ff2')
+        x=df_filtered["datetime"],
+        y=df_filtered["feels_correct"],
+        mode="lines+markers",
+        line=dict(color="darkorange", width=2),
+        fill='tozeroy',
+        fillcolor="rgba(255,165,0,0.2)",
+        name="Sensação Térmica"
     ))
     fig.update_layout(
-        title="🥵 Sensação Térmica (°C) / Feels Like (°C)",
-        xaxis_title="Data/Hora | Date/Time", yaxis_title="°C",
-        template="plotly_white", hovermode='x unified'
+        title="🥵 Sensação Térmica detalhada",
+        xaxis_title="Data/Hora",
+        yaxis_title="°C",
+        template="plotly_dark"
     )
     st.plotly_chart(fig, use_container_width=True)
+
 
 if show_humid:
     fig = go.Figure()
